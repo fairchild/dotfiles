@@ -1,3 +1,6 @@
+alias be='bundle exec'
+
+
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."
 alias ...="cd ../.."
