@@ -45,3 +45,10 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
+
+if [[ -f . ~/.nvm/nvm.sh ]]; then
+  . .nvm/nvm.sh
+fi
+
+# export NODE_ENV=production
+
