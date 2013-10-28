@@ -46,9 +46,19 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
-if [[ -f . ~/.nvm/nvm.sh ]]; then
-  . .nvm/nvm.sh
+if [[ -f $HOME/.nvm/nvm.sh ]]; then
+  source $HOME/.nvm/nvm.sh
 fi
+
+
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  source $(brew --prefix)/etc/bash_completion
+fi
+
+if [[ -f  $HOME/.rvm/scripts/rvm ]]; then
+  source $HOME/.rvm/scripts/rvm
+fi
+
 
 # export NODE_ENV=production
 
