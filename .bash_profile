@@ -78,8 +78,8 @@ if [ -f "$HOME/Dropbox/cloudteam/ec2_api_tools/environment" ]; then
 fi
 
 if [ -z "$EC2_CONFIG_DIR" ]; then
-  echo "setting EC2_CONFIG_DIR to default ~/.ec2/current"
    if [ -d ~/.ec2/current ]; then
+    echo "setting EC2_CONFIG_DIR to default ~/.ec2/current"
    	export EC2_CONFIG_DIR=~/.ec2/current
   fi
 fi
@@ -97,7 +97,5 @@ if [[ ! -z "$EC2_CONFIG_DIR" ]]; then
    else
      echo "no novarc found in $EC2_CONFIG_DIR" 
 	fi
-else
-  echo "no nova config set"
 fi
 
