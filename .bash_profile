@@ -59,6 +59,10 @@ fi
 if [ -f /usr/local/etc/bash_completion ]; then
   source /usr/local/etc/bash_completion
 fi
+if [ -f $HOME/.bash_completion/docker.bash ]; then
+  source $HOME/.bash_completion/docker.bash
+fi
+
 
 if [[ -f  $HOME/.rvm/scripts/rvm ]]; then
   source $HOME/.rvm/scripts/rvm
