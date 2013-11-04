@@ -1,5 +1,13 @@
 alias be='bundle exec'
 
+alias ls="ls -G"
+alias ll="ls -l"
+alias flushdns='dscacheutil -flushcache'
+alias Q='cd ~/.q && /usr/bin/javaws http://startup.q.att.com/startup/webstart/q.jnlp &'
+alias grep='GREP_COLOR="1;37;41" LANG=C grep --color=auto'
+#git aliases
+alias be='bundle exec'
+
 
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."

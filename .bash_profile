@@ -34,10 +34,15 @@ export LANG="en_US"
 
 # Add tab completion for `defaults read|write NSGlobalDomain`
 # You could just use `-g` instead, but I like being explicit
-complete -W "NSGlobalDomain" defaults
+if [[ `uname`=='Darwin' ]]; then
+	complete -W "NSGlobalDomain" defaults
+	# Add `killall` tab completion for common apps
+	complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall
 
-# Add `killall` tab completion for common apps
-complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall
+	# set sublime as the default editor
+	export EDITOR='subl -w'
+fi
+
 
 # If possible, add tab completion for many more commands
 [ -f /etc/bash_completion ] && source /etc/bash_completion
@@ -51,8 +56,8 @@ if [[ -f $HOME/.nvm/nvm.sh ]]; then
 fi
 
 
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-  source $(brew --prefix)/etc/bash_completion
+if [ -f /usr/local/etc/bash_completion ]; then
+  source /usr/local/etc/bash_completion
 fi
 
 if [[ -f  $HOME/.rvm/scripts/rvm ]]; then
@@ -60,5 +65,35 @@ if [[ -f  $HOME/.rvm/scripts/rvm ]]; then
 fi
 
 
-# export NODE_ENV=production
+# =========================================================
+# AWS config
+# =========================================================
+
+if [ -f "$HOME/Dropbox/cloudteam/ec2_api_tools/environment" ]; then
+	. $HOME/Dropbox/cloudteam/ec2_api_tools/ec2-switch-context
+fi
+
+if [ -z "$EC2_CONFIG_DIR" ]; then
+  echo "setting EC2_CONFIG_DIR to default ~/.ec2/current"
+   if [ -d ~/.ec2/current ]; then
+   	export EC2_CONFIG_DIR=~/.ec2/current
+  fi
+fi
+
+if [[ ! -z "$EC2_CONFIG_DIR" ]]; then
+	if [[ -f $EC2_CONFIG_DIR/environment ]]; then
+	  . $EC2_CONFIG_DIR/environment
+	fi
+	if [[ -f $EC2_CONFIG_DIR/novarc ]]; then
+	  echo "sourcing $EC2_CONFIG_DIR/novarc"
+     . $EC2_CONFIG_DIR/novarc
+   elif [[ -f "$EC2_CONFIG_DIR/*-openrc.sh"  ]]; then
+     echo "sourcing $EC2_CONFIG_DIR/*-openrc.sh "
+     . $EC2_CONFIG_DIR/*openrc.sh
+   else
+     echo "no novarc found in $EC2_CONFIG_DIR" 
+	fi
+else
+  echo "no nova config set"
+fi
 
