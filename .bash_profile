@@ -48,10 +48,6 @@ else
 fi
 
 
-# If possible, add tab completion for many more commands
-[ -f /etc/bash_completion ] && source /etc/bash_completion
-
-
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
 
@@ -63,10 +59,11 @@ fi
 if [ -f /usr/local/etc/bash_completion ]; then
   source /usr/local/etc/bash_completion
 fi
-if [ -f $HOME/.bash_completion/docker.bash ]; then
-  source $HOME/.bash_completion/docker.bash
-fi
 
+# If possible, add tab completion for many more commands
+if [ -f /etc/bash_completion ];then
+ source /etc/bash_completion
+fi
 
 if [[ -f  $HOME/.rvm/scripts/rvm ]]; then
   source $HOME/.rvm/scripts/rvm
