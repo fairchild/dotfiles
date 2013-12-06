@@ -43,13 +43,44 @@ export WHITE
 export BOLD
 export RESET
 
+parse_git_branch() {
+    in_wd="$(git rev-parse --is-inside-work-tree 2>/dev/null)" || return
+    test "$in_wd" = true || return
+    state=''
+    git update-index --refresh -q >/dev/null # avoid false positives with diff-index
+    if git rev-parse --verify HEAD >/dev/null 2>&1; then
+        git diff-index HEAD --quiet 2>/dev/null || state='*'
+    else
+        state='#'
+    fi
+    (
+        d="$(git rev-parse --show-cdup)" &&
+        cd "$d" &&
+        test -z "$(git ls-files --others --exclude-standard .)"
+    ) >/dev/null 2>&1 || state="${state}+"
+    branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    test -z "$branch" && branch='<detached-HEAD>'
+    echo "${branch#refs/heads/}${state}"
+}
+
 function parse_git_dirty() {
 	[[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
 }
 
-function parse_git_branch() {
-	git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/\1$(parse_git_dirty)/"
+
+function default_prompt {
+    if test -n "$SSH_CLIENT"; then
+      WHERE="${LIGHT_BLUE}(${CYAN}\u@\h${LIGHT_BLUE})${NONE} "
+    fi
+    PS1="\h${WHERE}${LIGHT_BLUE}:${CYAN}\w${LIGHT_BLUE}$(__git_ps1 " (%s)")${NONE}\n${GREEN} >${NONE} "
+    PS2="what? "
 }
 
+function my_prompt {
+  PS1="${GREEN}\h:${LIGHT_RED}\w${CYAN}\$(parse_git_branch)${NONE}\n>"
+}
+
+function dotfiles_prompt() {
 export PS1="\[${BOLD}${MAGENTA}\]\u \[$WHITE\]at \[$ORANGE\]\h \[$WHITE\]in \[$GREEN\]\w\[$WHITE\]\$([[ -n \$(git branch 2> /dev/null) ]] && echo \" on \")\[$PURPLE\]\$(parse_git_branch)\[$WHITE\]\n\$ \[$RESET\]"
 export PS2="\[$ORANGE\]→ \[$RESET\]"
+}

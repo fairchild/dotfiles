@@ -35,12 +35,16 @@ export LANG="en_US"
 # Add tab completion for `defaults read|write NSGlobalDomain`
 # You could just use `-g` instead, but I like being explicit
 if [[ `uname`=='Darwin' ]]; then
+  echo 'Darwin'
 	complete -W "NSGlobalDomain" defaults
 	# Add `killall` tab completion for common apps
 	complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall
 
 	# set sublime as the default editor
 	export EDITOR='subl -w'
+else
+  echo "`uname` detected, with no extra settings."
+  export EDITOR='vim'
 fi
 
 
@@ -99,3 +103,5 @@ if [[ ! -z "$EC2_CONFIG_DIR" ]]; then
 	fi
 fi
 
+
+dotfiles_prompt
