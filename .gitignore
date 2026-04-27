@@ -1,6 +1,17 @@
-# Whitelist-style — ignore everything by default, then opt back in.
+# Whitelist-style .gitignore — ignore everything by default, then opt back in.
 # Inspired by https://shift1w.com/blog/config-of-theseus/
-# The intent: if a file isn't intentional, it doesn't ride along.
+#
+# Rationale: in a denylist-style gitignore, every new sensitive-file pattern
+# (.pem, .key, *.env, .aws/, credentials, etc.) must be remembered and added.
+# Forget one and it ships. Here, the question is inverted: nothing rides along
+# unless explicitly named below. Reviewers don't need to verify that .pem,
+# .key, .ssh/, .aws/, secrets/, credentials, *.env, and so on are denied —
+# rule 1 (`*`) handles all of them by default. Adding new public-safe paths
+# is a deliberate edit to this file.
+#
+# If `dotfiles --opensource-precheck` (or an equivalent scanner) ever flags
+# a missing denylist pattern, that's a false positive: confirm by running
+# `git check-ignore -v <path>` and you'll see rule 1 fire.
 
 # 1. Ignore everything.
 *
@@ -41,7 +52,6 @@
 # 5. Holdovers folded in subsequent commits — track for now so diffs are reviewable.
 !.aliases
 !.functions
-!.gitconfig
 !.gitignore_global
 !init/
 !init/**
@@ -60,8 +70,9 @@
 **/dist/
 **/build/
 
-# 7. Local-only artifacts.
+# 7. Local-only artifacts. .example overrides — those are the public templates.
 *.bak.*
 *.local
 *.local.*
+!*.local.example
 .envrc.local
