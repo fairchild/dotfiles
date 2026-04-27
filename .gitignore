@@ -1,14 +1,67 @@
-# Compiled Python files
-*.pyc
+# Whitelist-style — ignore everything by default, then opt back in.
+# Inspired by https://shift1w.com/blog/config-of-theseus/
+# The intent: if a file isn't intentional, it doesn't ride along.
 
-# Folder view configuration files
-.DS_Store
-Desktop.ini
+# 1. Ignore everything.
+*
 
-# Thumbnail cache files
-._*
-Thumbs.db
+# 2. Allow descent into directories so the !patterns below can match.
+!*/
 
-# Files that might appear on external disks
-.Spotlight-V100
-.Trashes
+# 3. Tracked top-level files.
+!.gitignore
+!.mise.toml
+!README.md
+!LICENSE
+!CHANGELOG.md
+!install
+
+# 4. Tracked top-level directories (directory rule + child rule).
+!bin/
+!bin/**
+!src/
+!src/**
+!scripts/
+!scripts/**
+!home/
+!home/**
+!agents/
+!agents/**
+!docs/
+!docs/**
+!templates/
+!templates/**
+!install/
+!install/**
+!.github/
+!.github/**
+!legacy/
+!legacy/**
+
+# 5. Holdovers folded in subsequent commits — track for now so diffs are reviewable.
+!.aliases
+!.functions
+!.gitconfig
+!.gitignore_global
+!init/
+!init/**
+
+# 6. Re-ignore noise that slips into otherwise-allowed paths.
+**/.DS_Store
+**/Thumbs.db
+**/Desktop.ini
+**/._*
+**/.Spotlight-V100
+**/.Trashes
+**/*.pyc
+**/__pycache__/
+**/node_modules/
+**/.venv/
+**/dist/
+**/build/
+
+# 7. Local-only artifacts.
+*.bak.*
+*.local
+*.local.*
+.envrc.local
