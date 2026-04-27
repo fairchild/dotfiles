@@ -1,98 +1,71 @@
-## Installation
+# dotfiles
 
-### Using Git and the bootstrap script
+Umbrella for Michael's config-as-code constellation: [dotclaude](https://github.com/fairchild/dotclaude), [dotpi](https://github.com/fairchild/dotpi), [dotcursor](https://github.com/fairchild/dotcursor), and this repo. One CLI (`dotfiles`, plus an LLM-persona alias `dotty`) discovers participants, runs cross-repo health checks, and emits its own policy as an [agentskills.io](https://agentskills.io)-compatible skill so any agent picks up house rules automatically.
 
-You can clone the repository wherever you want. (I like to keep it in `~/Projects/dotfiles`, with `~/dotfiles` as a symlink.) The bootstrapper script will pull in the latest version and copy the files to your home folder.
+Lives canonically at `~/.config/dotfiles/`. A symlink at `~/code/dotfiles` keeps ergonomic parity with the sibling repos.
 
-```bash
-git clone https://github.com/mathiasbynens/dotfiles.git && cd dotfiles && source bootstrap.sh
+## install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install | sh
 ```
 
-To update, `cd` into your local `dotfiles` repository and then:
+The installer detects OS + arch, picks a profile (`mac-personal`, `linux-personal`, `codespace`, `cloud-vm`), downloads a pinned [mise](https://mise.jdx.dev) build with SHA256 verification, clones this repo, and hands off to `mise run bootstrap`. mise then runs `home/`-symlinking, profile Brewfile, and agent install tasks.
 
-```bash
-source bootstrap.sh
+It will probably break on a platform we haven't smoke-tested yet. File an issue.
+
+## dotfiles
+
+The policy in 30 seconds — the long form lives in [`docs/policy.md`](docs/policy.md).
+
+The repo is the ship; the planks are the configs. We replace planks one at a time, never the keel. The keel is a small set of invariants:
+
+- **`~/.claude` is always an independent clone on `main`.** Never a worktree, never a symlink. The reason is that hooks fire on every Claude session and a borrowed `.git` corrupts both ends.
+- **Whitelist `.gitignore`s.** Anything not explicitly opted in doesn't ride along. Turns the question from *what's noisy?* into *what's intentional?*.
+- **Tiered participation.** Any git repo is usable at tier 0. A `.mise.toml` lifts it to tier 1. A `[env] DOTFILES_NAME` line takes it to tier 2. A `doctor` and `bootstrap` task makes it a full tier 3 participant. No central manifest — repos declare themselves.
+- **Pin everything we don't control.** Supply chain over convenience. mise is pinned with SHA256 verification; an Actions workflow opens PRs to bump it. Brewfiles are next.
+- **`dotfiles` is deterministic; `dotty` is agentic.** The CLI runs in hooks and CI without an API key. The `dotty` persona shells out to `pi` for cross-repo audits when there's a human in the loop.
+
+### participants
+
+| Repo | Role | Runtime path |
+|---|---|---|
+| [dotclaude](https://github.com/fairchild/dotclaude) | Claude Code config (skills, agents, hooks) | `~/.claude` |
+| [dotpi](https://github.com/fairchild/dotpi) | `pi` agent runtime config | `~/.pi/agent` |
+| [dotcursor](https://github.com/fairchild/dotcursor) | Cursor IDE config | `~/.cursor` |
+| dotfiles (this repo) | Shell, git, brew, the CLI itself | `$HOME` (selected fragments) |
+
+### CLI
+
+```
+dotfiles doctor              # cross-repo health check, table output
+dotfiles doctor --json       # same, JSON
+dotfiles --skill             # emit SKILL.md to stdout
+dotfiles --skill --install   # write to ~/.claude/skills/dotfiles/SKILL.md
+dotfiles join <path>         # scaffold a participant repo
+dotfiles add <name> <path>   # register an external repo
+dotfiles pins                # current vs upstream lag
+dotty doctor                 # persona output (more opinionated)
+dotty audit                  # `pi`-backed cross-repo audit (Dr. Dotty)
 ```
 
-Alternatively, to update while avoiding the confirmation prompt:
+## layout
 
-```bash
-set -- -f; source bootstrap.sh
+```
+~/.config/dotfiles/
+├── bin/                  compiled binary (downloaded at install or built locally)
+├── src/                  TypeScript source (bun)
+├── scripts/              bash scripts; public ones carry #MISE description= header
+├── home/                 files that symlink into $HOME (zsh fragments, gitconfig, Brewfiles)
+├── agents/               LLM persona definitions (dr-dotty.md)
+├── docs/                 policy.md, architecture.md, manifest-conventions.md
+├── templates/            scaffolding for `dotfiles join`
+├── install               POSIX sh bootstrap (~50 lines)
+├── install/pins.toml     mise version + per-platform SHA256s
+├── .github/workflows/    doctor, bootstrap-smoke, release, mise-pin updates
+└── legacy/               parked planks (the dry dock)
 ```
 
-### Git-free install
+## lineage
 
-To install these dotfiles without Git:
-
-```bash
-cd; curl -#L https://github.com/fairchild/dotfiles/tarball/master | tar -xzv --strip-components 1 --exclude={README.md,bootstrap.sh}
-```
-
-To update later on, just run that command again.
-
-### Specify the `$PATH`
-
-If `~/.path` exists, it will be sourced along with the other files, before any feature testing (such as [detecting which version of `ls` is being used](https://github.com/mathiasbynens/dotfiles/blob/aff769fd75225d8f2e481185a71d5e05b76002dc/.aliases#L21-26)) takes place.
-
-Here’s an example `~/.path` file that adds `~/utils` to the `$PATH`:
-
-```bash
-export PATH="$HOME/utils:$PATH"
-```
-
-### Add custom commands without creating a new fork
-
-If `~/.extra` exists, it will be sourced along with the other files. You can use this to add a few custom commands without the need to fork this entire repository, or to add commands you don’t want to commit to a public repository.
-
-My `~/.extra` looks something like this:
-
-```bash
-# PATH additions
-export PATH="~/bin:$PATH"
-
-# Git credentials
-# Not in the repository, to prevent people from accidentally committing under my name
-GIT_AUTHOR_NAME="Michael Fairchild"
-GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
-git config --global user.name "$GIT_AUTHOR_NAME"
-GIT_AUTHOR_EMAIL="fairchild@mailinator.com
-GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
-git config --global user.email "$GIT_AUTHOR_EMAIL"
-```
-
-You could also use `~/.extra` to override settings, functions and aliases from my dotfiles repository. It’s probably better to [fork this repository](https://github.com/fairchild/dotfiles/fork_select) instead, though.
-
-### Sensible OS X defaults
-
-When setting up a new Mac, you may want to set some sensible OS X defaults:
-
-```bash
-./.osx
-```
-
-### Install Homebrew formulae
-
-When setting up a new Mac, you may want to install some common Homebrew formulae (after installing Homebrew, of course):
-
-```bash
-./.brew
-```
-
-## Feedback
-
-Suggestions/improvements
-[welcome](https://github.com/mathiasbynens/dotfiles/issues)!
-
-## Thanks to…
-
-* [Gianni Chiappetta](http://gf3.ca/) for sharing his [amazing collection of dotfiles](https://github.com/gf3/dotfiles)
-* [Matijs Brinkhuis](http://hotfusion.nl/) and his [dotfiles repository](https://github.com/matijs/dotfiles)
-* [Jan Moesen](http://jan.moesen.nu/) and his [ancient `.bash_profile`](https://gist.github.com/1156154) + [shiny _tilde_ repository](https://github.com/janmoesen/tilde)
-* [Ben Alman](http://benalman.com/) and his [dotfiles repository](https://github.com/cowboy/dotfiles)
-* [Nicolas Gallagher](http://nicolasgallagher.com/) and his [dotfiles repository](https://github.com/necolas/dotfiles)
-* [Tom Ryder](http://blog.sanctum.geek.nz/) and his [dotfiles repository](https://github.com/tejr/dotfiles)
-* [Chris Gerke](http://www.randomsquared.com/) and his [tutorial on creating an OS X SOE master image](http://chris-gerke.blogspot.com/2012/04/mac-osx-soe-master-image-day-7.html) + [_Insta_ repository](https://github.com/cgerke/Insta)
-* @ptb and [his _OS X Lion Setup_ repository](https://github.com/ptb/Mac-OS-X-Lion-Setup)
-* [Lauri ‘Lri’ Ranta](http://lri.me/) for sharing [loads of hidden preferences](http://lri.me/hiddenpreferences.txt)
-* [Tim Esselens](http://devel.datif.be/)
-* anyone who [contributed a patch](https://github.com/mathiasbynens/dotfiles/contributors) or [made a helpful suggestion](https://github.com/mathiasbynens/dotfiles/issues)
+This repo started life as a fork of [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles), the canonical pre-LLM-era starter. The original planks (`.bash_profile`, `.osx`, `.vim/`, the `bootstrap.sh` rsync) all live in [`legacy/`](legacy/) — preserved rather than deleted, since the ship metaphor requires a dry dock. Credit to the upstream contributors listed in [`legacy/README.original.md`](legacy/README.original.md) for the foundation. The umbrella restructure is a different shape on top of that foundation rather than a rejection of it.
