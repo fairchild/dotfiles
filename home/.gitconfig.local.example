@@ -1,0 +1,26 @@
+# ~/.gitconfig.local — copy this file (or let `mise run install:git` do it)
+# and fill in your machine-specific identity + private settings.
+#
+# Pulled in by the [include] block at the bottom of ~/.gitconfig. Anything
+# here overrides the public defaults when keys conflict.
+
+[user]
+	name  = Your Name
+	email = you@example.com
+	# signingkey = SSH-or-GPG-fingerprint
+
+# --- optional: SSH commit signing (1Password agent, hardware keys, etc.) ---
+# [gpg]
+#	format = ssh
+# [gpg "ssh"]
+#	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+# [commit]
+#	gpgsign = true
+
+# --- optional: per-directory work identity overrides ---
+# [includeIf "gitdir:~/work/"]
+#	path = ~/.gitconfig.work
+
+# --- optional: Heroku, GitButler, work-only quirks ---
+# [gitbutler]
+#	aiModelProvider = anthropic

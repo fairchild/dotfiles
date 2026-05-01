@@ -1,0 +1,126 @@
+# ~/.gitconfig (deployed via `mise run install:git` — symlinks $HOME/.gitconfig
+# to this file).
+#
+# Public-safe portion only. Identity (name, email), per-machine signing keys,
+# work-only includes, and other private-by-context settings live in
+# ~/.gitconfig.local — copy from home/.gitconfig.local.example. The
+# [include] block at the bottom of this file pulls that in conditionally.
+
+[alias]
+	# Working-tree shortcuts.
+	st  = status
+	s   = status -s
+	co  = checkout
+	sw  = switch
+	go  = checkout -B
+
+	# Logs.
+	ld  = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+	lg  = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	l   = log --pretty=oneline -n 20 --graph
+	ll  = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+	fl  = log -u
+	filelog = log -u
+
+	# Diffs (clear-screen-then-diff helpers).
+	d   = !"git diff-index --quiet HEAD -- || clear; git diff --patch-with-stat"
+	di  = !"d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+
+	# Quality-of-life.
+	la  = "!git config -l | grep alias | cut -c 7-"
+	ca  = !git add -A && git commit -av
+	tags     = tag -l
+	branches = branch -a
+	remotes  = remote -v
+	who      = shortlog -s --
+	whois    = "!sh -c 'git log -i -1 --pretty=\"format:%an <%ae>\n\" --author=\"$1\"' -"
+
+	# Conflict resolution.
+	ours    = "!f() { git co --ours $@ && git add $@; }; f"
+	theirs  = "!f() { git co --theirs $@ && git add $@; }; f"
+
+	# Submodule pulls.
+	p   = !"git pull; git submodule foreach git pull origin master"
+	c   = clone --recursive
+
+	# History maintenance.
+	credit    = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+	reb       = "!r() { git rebase -i HEAD~$1; }; r"
+	prune-all = !git remote | xargs -n 1 git remote prune
+	serve     = !git daemon --reuseaddr --verbose --base-path=. --export-all ./.git
+
+[apply]
+	# Detect whitespace errors when applying a patch.
+	whitespace = fix
+
+[core]
+	# Use the user's global excludes/attributes.
+	excludesfile  = ~/.gitignore_global
+	attributesfile = ~/.gitattributes
+	# Treat odd whitespace as an error.
+	whitespace = space-before-tab,indent-with-non-tab,trailing-space
+
+[init]
+	defaultBranch = main
+
+[checkout]
+	defaultRemote = origin
+
+[push]
+	autoSetupRemote = true
+	default = current
+
+[branch]
+	autoSetupMerge = always
+
+[merge]
+	# Include summaries of merged commits in newly created merge commit messages.
+	log = true
+
+[color]
+	ui = auto
+
+[color "branch"]
+	current = yellow reverse
+	local   = yellow
+	remote  = green
+
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old  = red bold
+	new  = green bold
+
+[color "status"]
+	added     = yellow
+	changed   = green
+	untracked = cyan
+
+[filter "lfs"]
+	clean    = git-lfs clean -- %f
+	smudge   = git-lfs smudge -- %f
+	process  = git-lfs filter-process
+	required = true
+
+# URL shorthands — `git clone gh:owner/repo` etc.
+[url "git@github.com:"]
+	insteadOf      = "gh:"
+	pushInsteadOf  = "github:"
+	pushInsteadOf  = "git://github.com/"
+
+[url "git://github.com/"]
+	insteadOf = "github:"
+
+[url "git@gist.github.com:"]
+	insteadOf      = "gst:"
+	pushInsteadOf  = "gist:"
+	pushInsteadOf  = "git://gist.github.com/"
+
+[url "git://gist.github.com/"]
+	insteadOf = "gist:"
+
+# Pull in machine-specific [user], signing keys, work includes, etc.
+# This must be the last section so locally-defined values override anything
+# above when keys conflict.
+[include]
+	path = ~/.gitconfig.local
