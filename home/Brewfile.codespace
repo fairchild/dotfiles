@@ -1,0 +1,16 @@
+# home/Brewfile.codespace — minimal Linuxbrew profile for GitHub Codespaces.
+# Selected when MISE_ENV=codespace ($CODESPACES is also detectable).
+#
+# Stance: Codespaces already ship with most build tools, gh, jq, and bun.
+# We add only what we can't get from the base image and what every dot*
+# repo's `doctor` task assumes is present.
+#
+# No casks (headless environment). No taps (each adds ~30s to install).
+
+brew "mise"        # the spine — even Codespace needs it for `dotfiles doctor`
+brew "fd"
+brew "ripgrep"
+brew "fzf"
+brew "starship"    # prompt; safe even though codespace's default is fine
+brew "zoxide"
+brew "watchexec"

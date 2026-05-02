@@ -1,0 +1,125 @@
+# home/Brewfile — mac-personal profile.
+# Generated from `brew bundle dump` and hand-trimmed. Run as part of
+# `mise run install:brew` (which selects this file when MISE_ENV is unset
+# or set to "mac-personal").
+#
+# Stance: list only formulae/casks Michael actually uses. vscode/go/cargo/uv
+# extensions are NOT tracked here — they live in dotcursor/per-project
+# manifests. Languages (python, node, ruby, go, etc.) come from mise, not
+# brew, by intent.
+#
+# Adding a package: `brew install <foo>`, then `brew bundle dump --force
+# --file=$DOTFILES_DIR/home/Brewfile.tmp && diff Brewfile Brewfile.tmp` and
+# add the new line in the right section below. Do not regenerate the whole
+# file — this hand-organized layout is part of the value.
+
+# --- third-party taps ---
+# Each tap underwrites at least one entry below. Review periodically; a stale
+# tap with no live entry should be removed.
+tap "alcova-ai/tap"            # summarize, perplexity-mcp
+tap "anthropics/tap"           # ant cask
+tap "cameroncooke/axe"         # axe (mac UI automation)
+tap "cirruslabs/cli"           # tart (macOS VMs for CI)
+tap "dagger/tap"               # container-use
+tap "jesseduffield/lazydocker"
+tap "libsql/sqld"              # turso/libsql
+tap "rhettbull/osxphotos"
+tap "steipete/tap"             # sag, codexbar
+tap "tursodatabase/tap"
+tap "withgraphite/tap"         # graphite (PR stacks)
+
+# --- core dev surface ---
+brew "mise"                    # runtime + task manager (this repo's spine)
+brew "gh"                      # GitHub CLI
+brew "git-filter-repo"
+brew "git-secrets"
+brew "gitleaks"
+brew "trufflehog"
+brew "jq"
+brew "ripgrep"
+brew "fd"
+brew "fzf"
+brew "tree"
+brew "zoxide"
+brew "watchexec"
+brew "entr"                    # used by zsh `watch_tests` function
+brew "wget"
+brew "tmux"
+brew "starship"                # prompt — initialized in home/zsh/60-prompt.zsh
+
+# --- shells / shell-adjacent ---
+brew "bash"                    # modern bash; system bash is 3.2 on macOS
+brew "coreutils"               # GNU coreutils with `g` prefix
+brew "shadowenv"
+
+# --- build / runtime deps (often pulled as transitive; tracked anyway) ---
+brew "openssl@3"
+brew "libyaml"
+brew "pkgconf"
+brew "zlib"
+
+# --- languages / package managers ---
+# Reminder: project-level languages come from mise. These are *system-level*
+# tools that need a Homebrew install for one reason or another.
+brew "uv"                      # python package manager
+brew "zig@0.15", link: true    # systems-language scratchpad
+
+# --- content / media ---
+brew "ffmpeg"
+brew "imagemagick"
+brew "poppler"                 # PDF tooling
+brew "resvg"                   # SVG render
+brew "graphviz"
+brew "exiftool"
+brew "sevenzip"
+brew "markdownlint-cli"
+brew "rich-cli"
+brew "yazi"                    # terminal file manager
+
+# --- network / system ---
+brew "caddy"
+brew "cloudflared"
+brew "iperf3"
+brew "mtr"
+brew "nmap"
+brew "duckdb"
+
+# --- macOS-specific automation ---
+brew "cliclick"
+brew "terminal-notifier"
+
+# --- Swift / iOS / Apple-platform dev ---
+# (bread-builder-ios, code-cadence, workspaces)
+brew "swift-format"
+brew "swiftformat"
+brew "xcbeautify"
+brew "xcodegen"
+brew "fastlane"
+
+# --- AI / LLM tooling ---
+brew "gemini-cli"
+
+# --- third-party-tap binaries ---
+brew "alcova-ai/tap/perplexity-mcp"
+brew "alcova-ai/tap/summarize"
+brew "cameroncooke/axe/axe"
+brew "cirruslabs/cli/tart"
+brew "jesseduffield/lazydocker/lazydocker"
+brew "rhettbull/osxphotos/osxphotos"
+brew "steipete/tap/sag"
+brew "tursodatabase/tap/turso"
+brew "withgraphite/tap/graphite"
+
+# --- misc ---
+brew "pwgen"
+brew "mask"                    # markdown-driven task runner
+
+# --- casks (GUI apps + fonts) ---
+cask "anthropics/tap/ant"
+cask "steipete/tap/codexbar"
+cask "dagger/tap/container-use"
+cask "ngrok"
+cask "orbstack"                # docker desktop replacement
+cask "swiftbar"
+cask "font-hack-nerd-font"
+cask "font-symbols-only-nerd-font"
