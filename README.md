@@ -7,7 +7,7 @@ Lives canonically at `~/.config/dotfiles/`. A symlink at `~/code/dotfiles` keeps
 ## install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install | sh
+curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install.sh | sh
 ```
 
 The installer detects OS + arch, picks a profile (`mac-personal`, `linux-personal`, `codespace`, `cloud-vm`), downloads a pinned [mise](https://mise.jdx.dev) build with SHA256 verification, clones this repo, and hands off to `mise run bootstrap`. mise then runs `home/`-symlinking, profile Brewfile, and agent install tasks.
@@ -60,7 +60,7 @@ dotty audit                  # `pi`-backed cross-repo audit (Dr. Dotty)
 ├── agents/               LLM persona definitions (dr-dotty.md)
 ├── docs/                 policy.md, architecture.md, manifest-conventions.md
 ├── templates/            scaffolding for `dotfiles join`
-├── install               POSIX sh bootstrap (~50 lines)
+├── install.sh            POSIX sh bootstrap (pinned mise install)
 ├── install/pins.toml     mise version + per-platform SHA256s
 ├── .github/workflows/    doctor, bootstrap-smoke, release, mise-pin updates
 └── legacy/               parked planks (the dry dock)

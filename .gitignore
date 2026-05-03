@@ -25,7 +25,7 @@
 !README.md
 !LICENSE
 !CHANGELOG.md
-!install
+!install.sh
 
 # 4. Tracked top-level directories (directory rule + child rule).
 !bin/

@@ -1,0 +1,176 @@
+name: update-mise-pin
+
+# Weekly cron + manual dispatch. Checks jdx/mise for a newer release than
+# install/pins.toml; if found, fetches SHASUMS256.asc, verifies the GPG
+# signature against the pinned fingerprint, and opens a PR with the new
+# pin values + an upstream changelog excerpt.
+#
+# CI on the PR (doctor.yml + bootstrap-smoke.yml) gates merge — no auto-merge.
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'   # Monday 14:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Read current pin
+        id: current
+        run: |
+          set -euo pipefail
+          version=$(awk -F'"' '/^version/ {print $2; exit}' install/pins.toml)
+          fpr=$(awk -F'"' '/gpg_key_fingerprint/ {print $2; exit}' install/pins.toml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "fingerprint=$fpr"  >> "$GITHUB_OUTPUT"
+          echo "Currently pinned: $version (key $fpr)"
+
+      - name: Fetch latest upstream release tag
+        id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          latest=$(gh api repos/jdx/mise/releases/latest --jq .tag_name)
+          released_at=$(gh api repos/jdx/mise/releases/latest --jq .published_at)
+          echo "version=$latest"          >> "$GITHUB_OUTPUT"
+          echo "released_at=$released_at" >> "$GITHUB_OUTPUT"
+          echo "Latest upstream: $latest ($released_at)"
+
+      - name: Skip if already up to date
+        if: steps.latest.outputs.version == steps.current.outputs.version
+        run: |
+          echo "Already on $(steps.current.outputs.version) — no PR needed."
+          exit 0
+
+      - name: Import jdx GPG key
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        run: |
+          set -euo pipefail
+          curl -fsSL https://github.com/jdx.gpg | gpg --import
+          imported_fpr=$(gpg --with-colons --fingerprint jdx@github.com 2>/dev/null \
+            | awk -F: '/^fpr:/ {print $10; exit}')
+          if [ -z "$imported_fpr" ]; then
+            # Fallback: get any fpr from the imported key
+            imported_fpr=$(gpg --with-colons --list-keys 2>/dev/null \
+              | awk -F: '/^fpr:/ {print $10; exit}')
+          fi
+          echo "Imported fingerprint: $imported_fpr"
+          echo "Pinned fingerprint:   ${{ steps.current.outputs.fingerprint }}"
+          if [ "$imported_fpr" != "${{ steps.current.outputs.fingerprint }}" ]; then
+            echo "::error::GPG fingerprint mismatch. Out-of-band re-validation required."
+            exit 2
+          fi
+
+      - name: Download + verify SHASUMS256.asc
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        env:
+          NEW_VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://github.com/jdx/mise/releases/download/${NEW_VERSION}/SHASUMS256.asc" \
+            -o SHASUMS256.asc
+          gpg --verify SHASUMS256.asc
+
+      - name: Extract pinned SHAs for our 4 platforms
+        id: shas
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        env:
+          NEW_VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          extract() {
+            local plat="$1"
+            grep -E "^[a-f0-9]{64}\s+\./mise-${NEW_VERSION}-${plat}$" SHASUMS256.asc \
+              | awk '{print $1}' | head -1
+          }
+          {
+            echo "linux_x64=$(extract   linux-x64)"
+            echo "linux_arm64=$(extract linux-arm64)"
+            echo "macos_x64=$(extract   macos-x64)"
+            echo "macos_arm64=$(extract macos-arm64)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite install/pins.toml
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        env:
+          NEW_VERSION:  ${{ steps.latest.outputs.version }}
+          RELEASED_AT:  ${{ steps.latest.outputs.released_at }}
+          LINUX_X64:    ${{ steps.shas.outputs.linux_x64 }}
+          LINUX_ARM64:  ${{ steps.shas.outputs.linux_arm64 }}
+          MACOS_X64:    ${{ steps.shas.outputs.macos_x64 }}
+          MACOS_ARM64:  ${{ steps.shas.outputs.macos_arm64 }}
+        run: |
+          set -euo pipefail
+          for v in "$LINUX_X64" "$LINUX_ARM64" "$MACOS_X64" "$MACOS_ARM64"; do
+            [ -n "$v" ] || { echo "::error::missing SHA"; exit 2; }
+          done
+
+          python3 - <<'PY'
+          import os, re, pathlib
+          p = pathlib.Path("install/pins.toml")
+          src = p.read_text()
+          v   = os.environ["NEW_VERSION"]
+          ts  = os.environ["RELEASED_AT"]
+          src = re.sub(r'(?m)^version\s*=.*$',     f'version = "{v}"',     src)
+          src = re.sub(r'(?m)^released_at\s*=.*$', f'released_at = "{ts}"', src)
+          src = re.sub(r'(?m)^release_url\s*=.*$', f'release_url = "https://github.com/jdx/mise/releases/tag/{v}"', src)
+          src = re.sub(r'(?m)^shasums_url\s*=.*$', f'shasums_url = "https://github.com/jdx/mise/releases/download/{v}/SHASUMS256.asc"', src)
+          src = re.sub(r'(?m)^("linux-x64"\s*=\s*).*$',   r'\1"' + os.environ["LINUX_X64"]   + '"', src)
+          src = re.sub(r'(?m)^("linux-arm64"\s*=\s*).*$', r'\1"' + os.environ["LINUX_ARM64"] + '"', src)
+          src = re.sub(r'(?m)^("macos-x64"\s*=\s*).*$',   r'\1"' + os.environ["MACOS_X64"]   + '"', src)
+          src = re.sub(r'(?m)^("macos-arm64"\s*=\s*).*$', r'\1"' + os.environ["MACOS_ARM64"] + '"', src)
+          p.write_text(src)
+          print(f"Rewrote install/pins.toml for {v}")
+          PY
+
+      - name: Pull upstream changelog excerpt
+        id: changelog
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          body=$(gh api "repos/jdx/mise/releases/tags/${NEW_VERSION}" --jq '.body' \
+            | head -c 4000)
+          {
+            echo 'body<<EOF'
+            echo "$body"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open PR
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: |
+            chore: bump mise pin to ${{ steps.latest.outputs.version }}
+          title: |
+            chore: bump mise pin to ${{ steps.latest.outputs.version }}
+          body: |
+            Upstream: ${{ steps.current.outputs.version }} → ${{ steps.latest.outputs.version }}
+
+            GPG verified against pinned fingerprint `${{ steps.current.outputs.fingerprint }}`.
+            SHA256SUMS extracted for 4 platforms.
+
+            ## Upstream changelog (excerpt)
+
+            ${{ steps.changelog.outputs.body }}
+
+            ---
+
+            CI must pass before merge. Reviewers: skim the upstream notes for
+            anything bootstrap-affecting (PATH semantics, env handling, plugin
+            registry changes).
+          branch: chore/bump-mise-pin
+          delete-branch: true
+          cleanup: never
