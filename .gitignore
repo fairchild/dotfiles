@@ -49,12 +49,8 @@
 !legacy/
 !legacy/**
 
-# 5. Holdovers folded in subsequent commits — track for now so diffs are reviewable.
-!.aliases
-!.functions
+# 5. Holdovers not (yet) used anywhere — kept so future opt-in is a one-line edit.
 !.gitignore_global
-!init/
-!init/**
 
 # 6. Re-ignore noise that slips into otherwise-allowed paths.
 **/.DS_Store
