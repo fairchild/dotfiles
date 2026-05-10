@@ -101,7 +101,7 @@ brew "gemini-cli"
 
 # --- third-party-tap binaries ---
 brew "alcova-ai/tap/perplexity-mcp"
-brew "alcova-ai/tap/summarize"
+brew "summarize"               # homebrew-core (despite tap-adjacent name)
 brew "cameroncooke/axe/axe"
 brew "cirruslabs/cli/tart"
 brew "jesseduffield/lazydocker/lazydocker"
