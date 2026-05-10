@@ -16,24 +16,28 @@
 #   - Windows binaries — out of scope for this umbrella.
 
 [mise]
-version = "v2026.4.28"
-released_at = "2026-04-30T11:33:44Z"
-release_url = "https://github.com/jdx/mise/releases/tag/v2026.4.28"
+version = "v2026.5.5"
+released_at = "2026-05-10T11:07:35Z"
+release_url = "https://github.com/jdx/mise/releases/tag/v2026.5.5"
 asset_url_template = "https://github.com/jdx/mise/releases/download/{version}/mise-{version}-{platform}"
-shasums_url = "https://github.com/jdx/mise/releases/download/v2026.4.28/SHASUMS256.asc"
+shasums_url = "https://github.com/jdx/mise/releases/download/v2026.5.5/SHASUMS256.asc"
 
 [mise.sha256]
 # Raw binary assets (no tar extraction needed at install time).
-"linux-x64"   = "9655492db554e8f70a69830f54307ac0f4681d6c42f9844e862528b7853d09d1"
-"linux-arm64" = "4a8b5ed8711744111cc92b2ecaeb3ebb24785f24d60bd83c1ce32bc2a85b0cb9"
-"macos-x64"   = "43c02a612949a37ba53bb4e1e89859da2b198b6e7dad753f31cf66db5af36b19"
-"macos-arm64" = "f0f5fa48643a00442c8cc066f8350285896561f2491bcbbee93b1a9a8249816d"
+"linux-x64"   = "3aaab5c05a8a94a93b42b4f581779bbd5c44ddb251e7f3639fc671ec5c6aab8a"
+"linux-arm64" = "084487717ba01adb233ceb26fa897532fc206476fd4bda97b147deb36e5b5148"
+"macos-x64"   = "0f9da9d79562866e9a910acaec2c25a2af8c4da8c126bcc8fa1dbbad0565a25b"
+"macos-arm64" = "5340b37f18f15a5f3a48fe11ee6b66a4963583ab49da1f9102de7a6878a16c03"
 
 [mise.signing]
-# jdx's GPG key, used to sign SHASUMS256.asc.
-# Verified on 2026-04-30 against signatures on releases v2026.4.28.
+# Release signing key for mise. NOT the same as the personal GPG keys at
+# https://github.com/jdx.gpg — those are jdx's keys-as-a-person, useful for
+# verifying commits. The *release* signing key is published separately as
+# the apt-keyring URL below and on keys.openpgp.org. Verified on 2026-05-10
+# against the v2026.5.5 SHASUMS256.asc signature.
 gpg_key_fingerprint = "24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
-gpg_key_url = "https://github.com/jdx.gpg"
+gpg_key_url = "https://mise.en.dev/gpg-key.pub"
+gpg_key_owner = "mise releases <release@mise.jdx.dev>"
 # Bumper workflow imports this key, verifies SHASUMS256.asc, then updates
 # the [mise.sha256] table. If the fingerprint ever changes, that's a hard
 # stop — re-validate the new key by an out-of-band channel before bumping.
