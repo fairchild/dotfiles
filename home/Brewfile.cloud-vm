@@ -1,0 +1,23 @@
+# home/Brewfile.cloud-vm — cloud Linux VM profile (DigitalOcean, Hetzner, EC2).
+# Selected when MISE_ENV=cloud-vm.
+#
+# Like codespace + the build-essential equivalent that bare cloud VMs
+# typically lack. Linuxbrew handles the build chain itself; we list a few
+# extras that show up in our scripts.
+
+brew "mise"
+brew "gh"
+brew "jq"
+brew "fd"
+brew "ripgrep"
+brew "fzf"
+brew "starship"
+brew "zoxide"
+brew "watchexec"
+brew "tmux"
+brew "wget"
+
+# Compilers Linuxbrew often pulls in transitively, listed for visibility.
+brew "gcc"
+brew "make"
+brew "openssl@3"

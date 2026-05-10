@@ -1,0 +1,51 @@
+# ~/.config/dotfiles/.mise.toml
+# Umbrella self-declaration. Makes the dotfiles repo a tier-3 participant
+# in its own conventions: identity in [env], install/doctor/sync tasks
+# wired up so `mise run bootstrap` does the whole thing.
+
+[env]
+DOTFILES_NAME    = "dotfiles"
+DOTFILES_RUNTIME = "~"
+DOTFILES_DIR     = "{{config_root}}"
+
+[tools]
+# bun is the eventual runtime for the Group E TypeScript CLI; declaring it
+# now is harmless and means `mise install` warms the cache for that work.
+bun = "latest"
+
+# Tasks are declared explicitly below so the colon-namespaced names
+# (install:zsh, install:git, install:brew) are canonical. Auto-discovery
+# via `task_config.includes = ["scripts"]` is intentionally omitted —
+# it would duplicate each task under the file-derived name.
+
+[tasks.bootstrap]
+description = "Run install:zsh, install:git, install:brew in order (idempotent)"
+run = """
+mise run install:zsh
+mise run install:git
+mise run install:brew
+"""
+
+[tasks."install:zsh"]
+description = "Symlink home/.zshrc into $HOME with backup; seed ~/.zshrc.local"
+run = "./scripts/install-zsh.sh"
+
+[tasks."install:git"]
+description = "Symlink home/.gitconfig into $HOME; migrate [user] to ~/.gitconfig.local"
+run = "./scripts/install-git.sh"
+
+[tasks."install:brew"]
+description = "Install packages from the active profile's Brewfile"
+run = "./scripts/install-brew.sh"
+
+[tasks.doctor]
+description = "Cross-check installed state against repo expectations"
+run = "./scripts/doctor.sh"
+
+[tasks.sync]
+description = "Fast-forward ~/.config/dotfiles to origin/master"
+run = """
+cd $DOTFILES_DIR
+git fetch --quiet origin
+git merge --ff-only origin/master
+"""

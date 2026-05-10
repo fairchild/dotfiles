@@ -1,0 +1,22 @@
+# ~/.zshrc.local — copy this file (or let `mise run install:zsh` do it for you)
+# and add anything that's machine-specific or shouldn't be committed.
+#
+# Sourced by 99-local.zsh after all in-repo fragments. Be aware: writing to
+# PATH here will not be visible to starship's init (60-prompt.zsh ran first).
+# If you need PATH-visible additions, do them in 50-tools.zsh instead.
+#
+# Examples:
+
+# --- private aliases ---
+# alias work='cd ~/work-stuff'
+
+# --- secrets / tokens ---
+# export OPENAI_API_KEY="sk-..."
+# export ANTHROPIC_API_KEY="sk-ant-..."
+
+# --- machine-specific tweaks ---
+# if [[ "$(hostname)" == "macbook-michael" ]]; then
+#     export DEFAULT_BROWSER="arc"
+# fi
+
+# --- experiments you don't want in the repo yet ---

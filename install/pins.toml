@@ -1,0 +1,39 @@
+# install/pins.toml — supply-chain pinning for the bootstrap installer.
+#
+# Updated by .github/workflows/update-mise-pin.yml (weekly cron + manual
+# dispatch). Reviewers: do not bump these by hand. The workflow's PR carries
+# upstream changelog excerpts and a re-verified GPG signature in the body.
+#
+# What's pinned:
+#   - The exact mise release tag the installer downloads.
+#   - SHA256 hashes for each supported platform binary (raw, not tarballs —
+#     simpler install path; equivalent assurance).
+#   - jdx's GPG signing key fingerprint for verifying SHASUMS256.asc when
+#     the bumper workflow runs and (optionally) at install time.
+#
+# What's intentionally NOT here:
+#   - musl variants (Alpine, distroless) — add when needed.
+#   - Windows binaries — out of scope for this umbrella.
+
+[mise]
+version = "v2026.4.28"
+released_at = "2026-04-30T11:33:44Z"
+release_url = "https://github.com/jdx/mise/releases/tag/v2026.4.28"
+asset_url_template = "https://github.com/jdx/mise/releases/download/{version}/mise-{version}-{platform}"
+shasums_url = "https://github.com/jdx/mise/releases/download/v2026.4.28/SHASUMS256.asc"
+
+[mise.sha256]
+# Raw binary assets (no tar extraction needed at install time).
+"linux-x64"   = "9655492db554e8f70a69830f54307ac0f4681d6c42f9844e862528b7853d09d1"
+"linux-arm64" = "4a8b5ed8711744111cc92b2ecaeb3ebb24785f24d60bd83c1ce32bc2a85b0cb9"
+"macos-x64"   = "43c02a612949a37ba53bb4e1e89859da2b198b6e7dad753f31cf66db5af36b19"
+"macos-arm64" = "f0f5fa48643a00442c8cc066f8350285896561f2491bcbbee93b1a9a8249816d"
+
+[mise.signing]
+# jdx's GPG key, used to sign SHASUMS256.asc.
+# Verified on 2026-04-30 against signatures on releases v2026.4.28.
+gpg_key_fingerprint = "24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
+gpg_key_url = "https://github.com/jdx.gpg"
+# Bumper workflow imports this key, verifies SHASUMS256.asc, then updates
+# the [mise.sha256] table. If the fingerprint ever changes, that's a hard
+# stop — re-validate the new key by an out-of-band channel before bumping.

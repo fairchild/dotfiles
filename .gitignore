@@ -1,14 +1,74 @@
-# Compiled Python files
-*.pyc
+# Whitelist-style .gitignore — ignore everything by default, then opt back in.
+# Inspired by https://shift1w.com/blog/config-of-theseus/
+#
+# Rationale: in a denylist-style gitignore, every new sensitive-file pattern
+# (.pem, .key, *.env, .aws/, credentials, etc.) must be remembered and added.
+# Forget one and it ships. Here, the question is inverted: nothing rides along
+# unless explicitly named below. Reviewers don't need to verify that .pem,
+# .key, .ssh/, .aws/, secrets/, credentials, *.env, and so on are denied —
+# rule 1 (`*`) handles all of them by default. Adding new public-safe paths
+# is a deliberate edit to this file.
+#
+# If `dotfiles --opensource-precheck` (or an equivalent scanner) ever flags
+# a missing denylist pattern, that's a false positive: confirm by running
+# `git check-ignore -v <path>` and you'll see rule 1 fire.
 
-# Folder view configuration files
-.DS_Store
-Desktop.ini
+# 1. Ignore everything.
+*
 
-# Thumbnail cache files
-._*
-Thumbs.db
+# 2. Allow descent into directories so the !patterns below can match.
+!*/
 
-# Files that might appear on external disks
-.Spotlight-V100
-.Trashes
+# 3. Tracked top-level files.
+!.gitignore
+!.mise.toml
+!README.md
+!LICENSE
+!CHANGELOG.md
+!install.sh
+
+# 4. Tracked top-level directories (directory rule + child rule).
+!bin/
+!bin/**
+!src/
+!src/**
+!scripts/
+!scripts/**
+!home/
+!home/**
+!agents/
+!agents/**
+!docs/
+!docs/**
+!templates/
+!templates/**
+!install/
+!install/**
+!.github/
+!.github/**
+!legacy/
+!legacy/**
+
+# 5. Holdovers not (yet) used anywhere — kept so future opt-in is a one-line edit.
+!.gitignore_global
+
+# 6. Re-ignore noise that slips into otherwise-allowed paths.
+**/.DS_Store
+**/Thumbs.db
+**/Desktop.ini
+**/._*
+**/.Spotlight-V100
+**/.Trashes
+**/*.pyc
+**/__pycache__/
+**/node_modules/
+**/.venv/
+**/dist/
+**/build/
+
+# 7. Local-only artifacts. .example overrides — those are the public templates.
+*.bak.*
+*.local
+*.local.*
+!*.local.example
+.envrc.local
