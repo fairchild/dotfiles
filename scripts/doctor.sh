@@ -26,8 +26,11 @@ else
 fi
 
 # --- git identity present ---
-git_email="$(git config --global user.email 2>/dev/null || true)"
-git_name="$(git config --global user.name 2>/dev/null || true)"
+# Use plain `git config` (no --global) so [include]ed files like
+# ~/.gitconfig.local are followed. `git config --global --list` only reads
+# the literal $HOME/.gitconfig file and won't surface included entries.
+git_email="$(git config user.email 2>/dev/null || true)"
+git_name="$(git config user.name 2>/dev/null || true)"
 if [[ -n "$git_email" && -n "$git_name" ]]; then
     ok "git identity: $git_name <$git_email>"
 elif [[ -z "$git_email" ]]; then
