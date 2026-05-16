@@ -23,6 +23,7 @@
 !.gitignore
 !.mise.toml
 !README.md
+!ROADMAP.md
 !LICENSE
 !CHANGELOG.md
 !install.sh
