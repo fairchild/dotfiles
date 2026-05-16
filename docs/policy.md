@@ -70,6 +70,11 @@ If you're unsure which to call, the answer is `dotfiles`. The persona unlocks mo
 
 <!-- skill:end -->
 
+## Pointers
+
+- [`../ROADMAP.md`](../ROADMAP.md) — priority-ordered open work, organized by GitHub milestone.
+- [GitHub Issues](https://github.com/fairchild/dotfiles/issues) — authoritative backlog.
+
 ## Lineage
 
 The structure draws from [Wiseberg's *config-of-theseus*](https://shift1w.com/blog/config-of-theseus/) for the whitelist `.gitignore` + plank-replacement frame, [dotpi](https://github.com/fairchild/dotpi) for the layered base+local→runtime split, [dotclaude](https://github.com/fairchild/dotclaude) for the two-clone deploy, and [the-library](https://github.com/disler/the-library) for the catalog-of-references pattern that keeps the umbrella thin.

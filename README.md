@@ -4,6 +4,8 @@ Umbrella for Michael's config-as-code constellation: [dotclaude](https://github.
 
 Lives canonically at `~/.config/dotfiles/`. A symlink at `~/code/dotfiles` keeps ergonomic parity with the sibling repos.
 
+For what's next, see [`ROADMAP.md`](ROADMAP.md). For house rules and invariants, see [`docs/policy.md`](docs/policy.md).
+
 ## install
 
 ```sh
