@@ -19,6 +19,8 @@ Turn the umbrella from "working solo on this Mac" into "monitored + cross-repo a
 | 4 | [#3](https://github.com/fairchild/dotfiles/issues/3) — `doctor.yml` + `doctor-reusable.yml` | PR-time check + reusable callable for participant repos |
 | 5 | [#5](https://github.com/fairchild/dotfiles/issues/5) — onboard dotpi as T3 participant | Compounds value with #2 |
 | 6 | [#6](https://github.com/fairchild/dotfiles/issues/6) — onboard dotclaude as T3 participant | Same shape as #5 |
+| 7 | [#12](https://github.com/fairchild/dotfiles/issues/12) — `scripts/doctor.sh` check for whitelist `.gitignore` silently dropping new top-level files | Foundational durability — bit phase-0 twice (`.zshrc.local.example`, `ROADMAP.md`) |
+| 8 | [#13](https://github.com/fairchild/dotfiles/issues/13) — fix `git config --global` writes leaking through symlinked `~/.gitconfig` | Pairs with #12 in the "preventative gotcha" bucket |
 
 ## Phase 2 — cursor onboarding + polish
 
