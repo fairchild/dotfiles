@@ -12,7 +12,7 @@ For what's next, see [`ROADMAP.md`](ROADMAP.md). For house rules and invariants,
 curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install.sh | sh
 ```
 
-The installer detects OS + arch, picks a profile (`mac-personal`, `linux-personal`, `codespace`, `cloud-vm`), downloads a pinned [mise](https://mise.jdx.dev) build with SHA256 verification, clones this repo, and hands off to `mise run bootstrap`. mise then runs `home/`-symlinking, profile Brewfile, and agent install tasks.
+The installer detects OS + arch, picks a profile (`mac-personal`, `linux-personal`, `codespace`, `cloud-vm`), downloads a pinned [mise](https://mise.jdx.dev) build with SHA256 verification, clones this repo, and hands off to `mise run bootstrap`. mise then runs `home/`-symlinking, shared `~/.agents` symlinking, profile Brewfile, and agent install tasks.
 
 It will probably break on a platform we haven't smoke-tested yet. File an issue.
 
@@ -35,7 +35,7 @@ The repo is the ship; the planks are the configs. We replace planks one at a tim
 | [dotclaude](https://github.com/fairchild/dotclaude) | Claude Code config (skills, agents, hooks) | `~/.claude` |
 | [dotpi](https://github.com/fairchild/dotpi) | `pi` agent runtime config | `~/.pi/agent` |
 | [dotcursor](https://github.com/fairchild/dotcursor) | Cursor IDE config | `~/.cursor` |
-| dotfiles (this repo) | Shell, git, brew, the CLI itself | `$HOME` (selected fragments) |
+| dotfiles (this repo) | Shell, git, brew, shared `~/.agents` assets, the CLI itself | `$HOME` (selected fragments) |
 
 ### CLI
 
@@ -59,7 +59,7 @@ dotty audit                  # `pi`-backed cross-repo audit (Dr. Dotty)
 ├── src/                  TypeScript source (bun)
 ├── scripts/              bash scripts; public ones carry #MISE description= header
 ├── home/                 files that symlink into $HOME (zsh fragments, gitconfig, Brewfiles)
-├── agents/               LLM persona definitions (dr-dotty.md)
+├── agents/shared/        canonical `~/.agents` shared skills, prompts, references, templates
 ├── docs/                 policy.md, architecture.md, manifest-conventions.md
 ├── templates/            scaffolding for `dotfiles join`
 ├── install.sh            POSIX sh bootstrap (pinned mise install)

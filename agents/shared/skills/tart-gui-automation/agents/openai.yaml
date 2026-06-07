@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tart GUI Automation"
+  short_description: "Headless-first Tart VM GUI automation with optional VNC."
+  default_prompt: "Use $tart-gui-automation to run and capture a deterministic GUI workflow in a Tart VM with headless default execution and optional VNC observation."

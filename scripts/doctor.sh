@@ -9,6 +9,13 @@ ok()   { printf '\033[32mOK\033[0m:   %s\n' "$*"; }
 warn() { printf '\033[33mWARN\033[0m: %s\n' "$*"; worst=$(( worst > 1 ? worst : 1 )); }
 fail() { printf '\033[31mFAIL\033[0m: %s\n' "$*"; worst=2; }
 
+realpath_py() {
+    python3 - "$1" <<'PY'
+import os, sys
+print(os.path.realpath(os.path.expanduser(sys.argv[1])))
+PY
+}
+
 # --- ~/.zshrc symlink ---
 expected_zshrc="$DOTFILES_DIR/home/.zshrc"
 if [[ -L "$HOME/.zshrc" ]] && [[ "$(readlink "$HOME/.zshrc")" == "$expected_zshrc" ]]; then
@@ -23,6 +30,22 @@ if [[ -L "$HOME/.gitconfig" ]] && [[ "$(readlink "$HOME/.gitconfig")" == "$expec
     ok "~/.gitconfig → $expected_gitconfig"
 else
     warn "~/.gitconfig is not a symlink to the repo (run \`mise run install:git\`)"
+fi
+
+# --- ~/.agents symlink ---
+expected_agents="$DOTFILES_DIR/agents/shared"
+if [[ -L "$HOME/.agents" ]] && [[ "$(realpath_py "$HOME/.agents")" == "$(realpath_py "$expected_agents")" ]]; then
+    ok "~/.agents → $expected_agents"
+else
+    warn "~/.agents is not a symlink to the repo (run \`mise run install:agents\`)"
+fi
+
+# --- pi shared skills topology ---
+expected_pi_skills="$HOME/.agents/skills"
+if [[ -L "$HOME/.pi/agent/skills" ]] && [[ "$(readlink "$HOME/.pi/agent/skills")" == "$expected_pi_skills" ]]; then
+    ok "~/.pi/agent/skills → ~/.agents/skills"
+else
+    warn "~/.pi/agent/skills is not a symlink to ~/.agents/skills (run \`mise run install:agents\`)"
 fi
 
 # --- git identity present ---

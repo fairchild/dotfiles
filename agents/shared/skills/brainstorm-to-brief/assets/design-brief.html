@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[PROJECT] Design Brief</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-blue-light: #dbeafe;
+      --accent-cyan: #0ea5e9;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --border-color: #e2e8f0;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --accent-blue: #60a5fa;
+        --accent-blue-light: #1e3a5f;
+        --border-color: #334155;
+        --shadow: rgba(0,0,0,0.3);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .hero img {
+      width: 100%;
+      display: block;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+    }
+
+    .hero-overlay h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-overlay .tagline {
+      font-size: 1.25rem;
+      opacity: 0.9;
+    }
+
+    /* Navigation */
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 4rem;
+    }
+
+    h2 {
+      color: var(--text-primary);
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    h3 {
+      color: var(--text-primary);
+      font-size: 1.25rem;
+      margin: 1.5rem 0 1rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    /* Executive Summary */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+
+    .app-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 22px;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .summary-content h3 {
+      margin-top: 0;
+    }
+
+    /* Key Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .stat {
+      background: var(--bg-secondary);
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Problem/Solution */
+    .problem-solution {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .problem, .solution {
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+
+    .problem {
+      background: #fef2f2;
+      border-left: 4px solid var(--accent-red);
+    }
+
+    .solution {
+      background: #f0fdf4;
+      border-left: 4px solid var(--accent-green);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .problem { background: #2d1f1f; }
+      .solution { background: #1f2d1f; }
+    }
+
+    .problem h4, .solution h4 {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .problem h4 { color: var(--accent-red); }
+    .solution h4 { color: var(--accent-green); }
+
+    /* User Personas */
+    .persona {
+      display: flex;
+      gap: 1.5rem;
+      background: var(--bg-secondary);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .persona-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .persona-info h4 {
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .persona-role {
+      color: var(--accent-orange);
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .persona-needs {
+      list-style: none;
+      padding: 0;
+    }
+
+    .persona-needs li {
+      padding: 0.25rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      font-size: 0.9rem;
+    }
+
+    .persona-needs li::before {
+      content: '\2022';
+      color: var(--accent-blue);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    /* Design Principles */
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .principle {
+      background: var(--bg-secondary);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .principle-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .principle h4 {
+      color: var(--text-primary);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .principle p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Key Flows */
+    .flow-card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .flow-image {
+      width: 100%;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .flow-image:hover {
+      transform: scale(1.01);
+    }
+
+    .flow-content {
+      padding: 1.25rem;
+    }
+
+    .flow-content h4 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .flow-content p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .flow-link {
+      display: inline-block;
+      margin-top: 0.75rem;
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .flow-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Visual Direction */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .mockup-grid img {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .mockup-grid img:hover {
+      transform: scale(1.03);
+    }
+
+    /* Color Palette */
+    .colors {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .color-swatch {
+      flex: 1;
+      text-align: center;
+    }
+
+    .swatch {
+      height: 60px;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .color-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .color-value {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    /* Links Section */
+    .resources {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .resource {
+      padding: 1.25rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .resource:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .resource-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .resource-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; }
+
+    @media (max-width: 768px) {
+      .container { padding: 1rem; }
+      .hero-overlay h1 { font-size: 1.75rem; }
+      .problem-solution { grid-template-columns: 1fr; }
+      .persona { flex-direction: column; text-align: center; }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Hero -->
+    <div class="hero">
+      <img src="brief/hero.jpg" alt="[PROJECT] - [TAGLINE]">
+      <div class="hero-overlay">
+        <h1>[PROJECT]</h1>
+        <p class="tagline">[TAGLINE - one line describing the product]</p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-links">
+      <a href="stories/index.html">Story Flows</a>
+      <a href="brainstorm/index.html">Screen Exploration</a>
+      <a href="../user-stories.md">User Stories</a>
+      <a href="../product_overview.md">Product Overview</a>
+    </nav>
+
+    <!-- Executive Summary -->
+    <section>
+      <h2>Executive Summary</h2>
+      <div class="summary-grid">
+        <img src="brief/app-icon.jpg" alt="[PROJECT] App Icon" class="app-icon">
+        <div class="summary-content">
+          <h3>What is [PROJECT]?</h3>
+          <p>[2-3 sentences describing what the product does and its key differentiator.]</p>
+          <p><strong>The key differentiator:</strong> [What makes this unique.]</p>
+        </div>
+      </div>
+
+      <!-- OPTIONAL: Key Stats - Remove if not applicable -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">[#]</div>
+          <div class="stat-label">[Metric 1]</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">[#]</div>
+          <div class="stat-label">[Metric 2]</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">[#]</div>
+          <div class="stat-label">[Metric 3]</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">[#]</div>
+          <div class="stat-label">[Metric 4]</div>
+        </div>
+      </div>
+      <!-- /OPTIONAL -->
+    </section>
+
+    <!-- Problem / Solution -->
+    <section>
+      <h2>Problem & Solution</h2>
+      <div class="problem-solution">
+        <div class="problem">
+          <h4>The Problem</h4>
+          <p>[Describe the pain point this product addresses.]</p>
+        </div>
+        <div class="solution">
+          <h4>Our Solution</h4>
+          <p>[Describe how the product solves it. Bold the key phrase.]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPTIONAL: Target Users - Remove if not needed -->
+    <section>
+      <h2>Target Users</h2>
+      <div class="persona">
+        <img src="brief/persona-primary.jpg" alt="[Persona Name]" class="persona-image">
+        <div class="persona-info">
+          <h4>[Persona Name]</h4>
+          <p class="persona-role">Primary User</p>
+          <ul class="persona-needs">
+            <li>[Need or behavior 1]</li>
+            <li>[Need or behavior 2]</li>
+            <li>[Need or behavior 3]</li>
+          </ul>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-info" style="padding-left: 116px;">
+          <h4>[Secondary Persona]</h4>
+          <p class="persona-role">Secondary User</p>
+          <ul class="persona-needs">
+            <li>[Need or behavior 1]</li>
+            <li>[Need or behavior 2]</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <!-- /OPTIONAL -->
+
+    <!-- Design Principles -->
+    <section>
+      <h2>Design Principles</h2>
+      <div class="principles">
+        <div class="principle">
+          <div class="principle-icon">[EMOJI]</div>
+          <h4>[Principle 1]</h4>
+          <p>[Brief description of this guiding principle.]</p>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">[EMOJI]</div>
+          <h4>[Principle 2]</h4>
+          <p>[Brief description of this guiding principle.]</p>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">[EMOJI]</div>
+          <h4>[Principle 3]</h4>
+          <p>[Brief description of this guiding principle.]</p>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">[EMOJI]</div>
+          <h4>[Principle 4]</h4>
+          <p>[Brief description of this guiding principle.]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Flows -->
+    <section>
+      <h2>Key User Flows</h2>
+
+      <div class="flow-card">
+        <img src="wireflows/flow-1.jpg" alt="[Flow 1 Title]" class="flow-image" onclick="openLightbox(this.src)">
+        <div class="flow-content">
+          <h4>1. [Flow 1 Title]</h4>
+          <p>[Description of the user journey. Bold key metrics or outcomes.]</p>
+          <a href="stories/index.html#story-1" class="flow-link">View detailed flow &rarr;</a>
+        </div>
+      </div>
+
+      <div class="flow-card">
+        <img src="wireflows/flow-2.jpg" alt="[Flow 2 Title]" class="flow-image" onclick="openLightbox(this.src)">
+        <div class="flow-content">
+          <h4>2. [Flow 2 Title]</h4>
+          <p>[Description of the user journey.]</p>
+          <a href="stories/index.html#story-2" class="flow-link">View detailed flow &rarr;</a>
+        </div>
+      </div>
+
+      <!-- OPTIONAL: Add more flows as needed -->
+      <div class="flow-card">
+        <img src="wireflows/flow-3.jpg" alt="[Flow 3 Title]" class="flow-image" onclick="openLightbox(this.src)">
+        <div class="flow-content">
+          <h4>3. [Flow 3 Title]</h4>
+          <p>[Description of the user journey.]</p>
+          <a href="stories/index.html#story-3" class="flow-link">View detailed flow &rarr;</a>
+        </div>
+      </div>
+      <!-- /OPTIONAL -->
+    </section>
+
+    <!-- Visual Direction -->
+    <section>
+      <h2>Visual Direction</h2>
+      <p>[Describe the visual style: iOS/Material, color philosophy, typography, key UI patterns.]</p>
+
+      <div class="mockup-grid">
+        <img src="stories/s1-01.png" alt="Screen 1" onclick="openLightbox(this.src)">
+        <img src="stories/s1-02.png" alt="Screen 2" onclick="openLightbox(this.src)">
+        <img src="stories/s2-01.png" alt="Screen 3" onclick="openLightbox(this.src)">
+      </div>
+
+      <h3>Color Palette</h3>
+      <div class="colors">
+        <div class="color-swatch">
+          <div class="swatch" style="background: #3b82f6;"></div>
+          <div class="color-name">Primary</div>
+          <div class="color-value">#3b82f6</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch" style="background: #0ea5e9;"></div>
+          <div class="color-name">Accent</div>
+          <div class="color-value">#0ea5e9</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch" style="background: #10b981;"></div>
+          <div class="color-name">Success</div>
+          <div class="color-value">#10b981</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch" style="background: #f59e0b;"></div>
+          <div class="color-name">Warning</div>
+          <div class="color-value">#f59e0b</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch" style="background: #ef4444;"></div>
+          <div class="color-name">Error</div>
+          <div class="color-value">#ef4444</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resources -->
+    <section>
+      <h2>Supporting Documentation</h2>
+      <div class="resources">
+        <a href="stories/index.html" class="resource">
+          <div class="resource-title">Story Flows</div>
+          <div class="resource-desc">Visual walkthroughs with AI-generated screen mockups</div>
+        </a>
+        <a href="brainstorm/index.html" class="resource">
+          <div class="resource-title">Screen Exploration</div>
+          <div class="resource-desc">Individual mockups with rating and feedback tools</div>
+        </a>
+        <a href="../user-stories.md" class="resource">
+          <div class="resource-title">User Stories</div>
+          <div class="resource-desc">Text-based user stories with Mermaid diagrams</div>
+        </a>
+        <a href="../product_overview.md" class="resource">
+          <div class="resource-title">Product Overview</div>
+          <div class="resource-desc">Complete product definition and requirements</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- OPTIONAL: Next Steps - Remove if not needed -->
+    <section>
+      <h2>Next Steps</h2>
+      <ol style="padding-left: 1.5rem; color: var(--text-secondary);">
+        <li style="margin-bottom: 0.75rem;"><strong>[Step 1]:</strong> [Description]</li>
+        <li style="margin-bottom: 0.75rem;"><strong>[Step 2]:</strong> [Description]</li>
+        <li style="margin-bottom: 0.75rem;"><strong>[Step 3]:</strong> [Description]</li>
+        <li><strong>[Step 4]:</strong> [Description]</li>
+      </ol>
+    </section>
+    <!-- /OPTIONAL -->
+
+    <footer>
+      <p>[PROJECT] Design Brief v1 &bull; Generated with AI assistance &bull; [DATE]</p>
+    </footer>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Enlarged view">
+  </div>
+
+  <script>
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>
