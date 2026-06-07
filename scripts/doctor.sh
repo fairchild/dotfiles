@@ -85,9 +85,9 @@ if [[ -z "$pinned" ]]; then
 elif [[ "$running" == "$pinned" ]]; then
     ok "mise on pinned version $pinned"
 elif [[ "$running" > "$pinned" ]]; then
-    warn "mise $running is ahead of pinned $pinned (bumper PR likely landed; run \`mise run sync\`)"
+    warn "mise $running is ahead of pinned $pinned (local install is newer; bump install/pins.toml if this version is desired)"
 else
-    warn "mise $running is behind pinned $pinned (run \`./install.sh\` to re-pin)"
+    warn "mise $running is behind pinned $pinned (run \`./install.sh\` to install the pinned version)"
 fi
 
 # --- shell can find core tools ---
