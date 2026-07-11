@@ -1,0 +1,3 @@
+# Outcome data directory
+
+This directory stores outcomes.jsonl for learning from past dependency updates.

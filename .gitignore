@@ -68,6 +68,7 @@
 **/build/
 
 # 7. Local-only artifacts. .example overrides — those are the public templates.
+*.bak
 *.bak.*
 *.local
 *.local.*

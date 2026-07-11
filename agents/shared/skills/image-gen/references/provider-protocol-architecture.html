@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image-Gen Design Guide</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f6f1;
+      --ink: #24231f;
+      --muted: #68665d;
+      --line: #d9d5ca;
+      --soft-line: #e9e4d9;
+      --panel: #fffdf8;
+      --wash: #eeece4;
+      --green: #2f6b58;
+      --blue: #315f7d;
+      --amber: #8a6125;
+      --red: #8a3f36;
+      --shadow: 0 18px 60px rgba(36, 35, 31, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(36, 35, 31, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(36, 35, 31, 0.025) 1px, transparent 1px),
+        var(--paper);
+      background-size: 42px 42px;
+      color: var(--ink);
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 44px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+      gap: 40px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 32px;
+      min-height: 430px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--green);
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 860px;
+      margin: 0;
+      font-size: clamp(46px, 7vw, 96px);
+      font-weight: 500;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(30px, 4vw, 56px);
+      font-weight: 520;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 25px;
+      font-weight: 560;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .lede {
+      max-width: 760px;
+      margin-top: 24px;
+      color: #4e4b43;
+      font-size: clamp(22px, 2.4vw, 31px);
+      line-height: 1.28;
+    }
+
+    .summary-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--ink);
+      font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .summary-card p {
+      font-size: 18px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 24px 0 0;
+    }
+
+    .nav a {
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.72);
+      padding: 7px 10px;
+      color: var(--ink);
+      font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-decoration: none;
+    }
+
+    .section {
+      padding: 54px 0;
+      border-bottom: 1px solid var(--soft-line);
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: minmax(230px, 0.38fr) minmax(0, 1fr);
+      gap: 44px;
+      align-items: start;
+    }
+
+    .section-kicker {
+      position: sticky;
+      top: 24px;
+      color: var(--green);
+      font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .content-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: rgba(255, 253, 248, 0.78);
+      border: 1px solid var(--line);
+      padding: 22px;
+      min-height: 180px;
+    }
+
+    .card p {
+      font-size: 17px;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--ink);
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 999px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .flow-row:first-child {
+      border-top: 0;
+    }
+
+    .flow-term {
+      color: var(--ink);
+      font: 700 13px/1.25 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .flow-desc {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0 6px;
+    }
+
+    .node {
+      min-height: 106px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .node span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .node strong {
+      color: var(--ink);
+      font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .node[data-tone="blue"] {
+      border-color: rgba(49, 95, 125, 0.35);
+    }
+
+    .node[data-tone="amber"] {
+      border-color: rgba(138, 97, 37, 0.38);
+    }
+
+    .node[data-tone="green"] {
+      border-color: rgba(47, 107, 88, 0.42);
+    }
+
+    .quote {
+      border-left: 4px solid var(--green);
+      padding: 6px 0 6px 22px;
+      color: #424039;
+      font-size: clamp(25px, 3vw, 38px);
+      line-height: 1.16;
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .principle {
+      background: var(--wash);
+      border-top: 3px solid var(--green);
+      padding: 20px;
+    }
+
+    .principle:nth-child(2n) {
+      border-top-color: var(--blue);
+    }
+
+    .principle:nth-child(3n) {
+      border-top-color: var(--amber);
+    }
+
+    .principle p {
+      font-size: 17px;
+    }
+
+    code {
+      background: rgba(36, 35, 31, 0.07);
+      color: #1d1b17;
+      padding: 0.1em 0.28em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.87em;
+    }
+
+    .code-panel {
+      overflow-x: auto;
+      background: #26251f;
+      color: #f5f0e4;
+      border: 1px solid #3e3b33;
+      padding: 18px;
+      font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .code-panel pre {
+      margin: 0;
+      min-width: 660px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .phase {
+      min-height: 280px;
+      padding: 22px;
+      border-left: 1px solid var(--line);
+    }
+
+    .phase:first-child {
+      border-left: 0;
+    }
+
+    .phase-num {
+      color: var(--green);
+      font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .phase h3 {
+      margin-top: 28px;
+    }
+
+    .phase p {
+      margin-top: 10px;
+      font-size: 17px;
+    }
+
+    .checks {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .check {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: rgba(255, 253, 248, 0.7);
+      border: 1px solid var(--line);
+      padding: 16px;
+    }
+
+    .check::before {
+      content: "";
+      width: 11px;
+      height: 11px;
+      margin-top: 7px;
+      background: var(--green);
+      flex: 0 0 auto;
+    }
+
+    .check:nth-child(2n)::before {
+      background: var(--blue);
+    }
+
+    .check p {
+      font-size: 17px;
+    }
+
+    .footer {
+      padding-top: 34px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .section-grid,
+      .diagram,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      .section-kicker {
+        position: static;
+      }
+
+      .cards,
+      .principles,
+      .checks {
+        grid-template-columns: 1fr;
+      }
+
+      .phase {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        min-height: 0;
+      }
+
+      .phase:first-child {
+        border-top: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        width: min(100vw - 24px, 1180px);
+        padding-top: 24px;
+      }
+
+      .hero {
+        min-height: 0;
+        gap: 28px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      .flow-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Image-gen design guide</p>
+        <h1>How the image-gen skill works.</h1>
+        <p class="lede">The skill is a small comparison-first image generation system: provider adapters create candidates, a local gallery captures preference, and protocol checks keep the pieces interchangeable.</p>
+        <nav class="nav" aria-label="Page sections">
+          <a href="#now">Design</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#protocol">Protocol</a>
+          <a href="#testing">Tests</a>
+          <a href="#storage">Storage</a>
+          <a href="#evolution">Next</a>
+        </nav>
+      </div>
+      <aside class="summary-card" aria-label="Current design summary">
+        <strong>Chosen design</strong>
+        <p>Provider scripts stay small and provider-specific. The shared contract is command-line behavior and protocol JSON. Review and ranking data stays local by default.</p>
+      </aside>
+    </header>
+
+    <section id="now" class="section section-grid">
+      <div class="section-kicker">Implemented design</div>
+      <div class="content-stack">
+        <h2>The skill is built from plain scripts with a tested boundary.</h2>
+        <p>There is no provider framework hidden behind the skill. The implementation uses directly executable UV scripts, one shared helper for local mechanics, a review gallery for ranking, and a test suite that checks the adapter interface before paid provider calls happen.</p>
+        <div class="cards">
+          <article class="card">
+            <span class="label"><span class="dot"></span>Provider adapters</span>
+            <p><code>generate_openai.py</code>, <code>generate_gemini.py</code>, <code>generate_imagen.py</code>, and <code>generate_fal.py</code> each own their provider API details and expose the same basic command shape.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span>Common local runtime</span>
+            <p><code>scripts/common.py</code> handles environment loading, output paths, MIME extensions, image dimensions, and generation history. It is the only shared local import for provider scripts.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span>Comparison loop</span>
+            <p><code>run_examples.py</code> can produce reviewable comparison manifests. <code>review_gallery.py</code> opens those runs, saves rankings, copies the winner, and supports regeneration.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span>Visual evaluator</span>
+            <p><code>evaluate_review_gallery.py</code> captures screenshots and checks the gallery behavior, including the image-only default state and non-overlapping metadata rule.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="section section-grid">
+      <div class="section-kicker">Workflow</div>
+      <div class="content-stack">
+        <h2>There are two working paths: direct generation and comparison review.</h2>
+        <p>Direct generation is still the simplest path when the desired provider is known. Comparison review is the path for model comparison, ranking, feedback capture, and future training data.</p>
+        <div class="diagram" aria-label="Image-gen workflow">
+          <div class="node" data-tone="blue"><strong>Prompt</strong><span>User asks for an image or runs a fixed example</span></div>
+          <div class="node" data-tone="amber"><strong>Adapters</strong><span>Enabled provider scripts generate candidates</span></div>
+          <div class="node" data-tone="green"><strong>Manifest</strong><span>Prompt, candidates, providers, models, and paths</span></div>
+          <div class="node" data-tone="blue"><strong>Gallery</strong><span>Image-first ranking, comment, regenerate, save</span></div>
+          <div class="node" data-tone="green"><strong>Winner</strong><span>Leftmost image is copied as the selected output</span></div>
+        </div>
+        <div class="code-panel" aria-label="Current workflow commands">
+          <pre># Direct provider generation
+skills/image-gen/scripts/generate_openai.py \
+  --prompt "a quiet app icon for a journaling tool" \
+  --output /tmp/icon.png
+
+# Fixed comparison example, paid only with --generate
+skills/image-gen/scripts/run_examples.py --generate --example typography-poster
+
+# Open the generated run for ranking and feedback
+skills/image-gen/scripts/review_gallery.py --run-dir skills/image-gen/outputs/examples/&lt;timestamp&gt;</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="protocol" class="section section-grid">
+      <div class="section-kicker">Provider protocol</div>
+      <div class="content-stack">
+        <h2>The protocol is the stable surface between providers and tools.</h2>
+        <p>Provider internals can differ. The outer behavior cannot. Runners and review tools depend on a small adapter contract instead of reaching into provider code.</p>
+        <div class="flow">
+          <div class="flow-row">
+            <div class="flow-term">Executable</div>
+            <div class="flow-desc">Each provider is a directly executable UV script with a shebang, executable bit, and PEP 723 dependency metadata.</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-term">Shared flags</div>
+            <div class="flow-desc">Every provider supports <code>--prompt</code>, <code>--output</code>, <code>--output-dir</code>, <code>--model</code>, <code>--check</code>, and <code>--protocol</code>.</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-term">Protocol JSON</div>
+            <div class="flow-desc"><code>--protocol</code> prints machine-readable metadata without requiring API keys, provider credentials, or generation spend.</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-term">Final stdout</div>
+            <div class="flow-desc">On successful generation, the final stdout line is the resolved output path. That keeps shell and agent composition simple.</div>
+          </div>
+          <div class="flow-row">
+            <div class="flow-term">History</div>
+            <div class="flow-desc">Successful provider generations append to <code>data/generations.jsonl</code> unless <code>IMAGE_GEN_DISABLE_HISTORY=1</code> is set.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="testing" class="section section-grid">
+      <div class="section-kicker">Interface tests</div>
+      <div class="content-stack">
+        <h2>The tests check the interface, not only the implementation.</h2>
+        <p>The default test suite stays free. It compiles scripts, checks executable UV metadata, validates the provider protocol surface, exercises <code>--protocol</code> JSON with no API keys, verifies history logging, and checks that generated example manifests are review-gallery compatible. The focused <code>check_protocol.py</code> wrapper runs the adapter-contract checks directly and is part of PR validation for image-gen changes.</p>
+        <p class="quote">A provider can be internally different and still be externally interchangeable.</p>
+        <div class="checks">
+          <div class="check"><p><strong>No-key protocol command.</strong> <code>check_protocol.py</code> calls provider scripts with <code>--protocol</code> using the local Python interpreter, so provider SDKs and credentials are not needed.</p></div>
+          <div class="check"><p><strong>Static guardrails.</strong> Tests still scan options, top-level functions, local imports, history calls, and final stdout behavior.</p></div>
+          <div class="check"><p><strong>Manifest handoff.</strong> The example runner now records candidate entries in the shape that the review gallery already consumes.</p></div>
+          <div class="check"><p><strong>Paid calls separate.</strong> Real generation remains behind explicit <code>--generate</code> flags and provider key checks.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="storage" class="section section-grid">
+      <div class="section-kicker">Storage and review</div>
+      <div class="content-stack">
+        <h2>The skill accumulates local evidence as it is used.</h2>
+        <p>Generated images, manifests, evaluation screenshots, rankings, regeneration events, and provenance logs are intentionally local and gitignored. The tracked repo carries the tools and reusable assets; the ignored directories carry private usage history. This is a documented local convention for this skill rather than a general Agent Skills standard.</p>
+        <div class="cards">
+          <article class="card">
+            <span class="label"><span class="dot"></span><code>outputs/</code></span>
+            <p>Generated images, example comparison runs, review manifests, winner copies, test runs, and visual evaluation screenshots.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span><code>data/</code></span>
+            <p>Local JSONL history including <code>generations.jsonl</code>, <code>rankings.jsonl</code>, and <code>regenerations.jsonl</code>.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span><code>assets/</code></span>
+            <p>Tracked reusable inputs such as the gallery template, prompt packs, masks, and safe reference materials.</p>
+          </article>
+          <article class="card">
+            <span class="label"><span class="dot"></span><code>references/</code></span>
+            <p>Tracked maintenance notes, model matrices, this design guide, and the storage policy explaining why mutable data is separated from reusable skill resources.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="evolution" class="section section-grid">
+      <div class="section-kicker">Next work</div>
+      <div class="content-stack">
+        <h2>The remaining work is to make comparison the normal prompt path.</h2>
+        <p>The foundation is now in place: provider scripts advertise their protocol, tests enforce the interface, and example manifests can feed the review gallery. The next step is a single prompt-first command that runs enabled providers, opens review, waits for save, and prints only the winning image path.</p>
+        <div class="timeline">
+          <article class="phase">
+            <div class="phase-num">Next 1</div>
+            <h3><code>compare_prompt.py</code></h3>
+            <p>Generate one candidate per enabled provider for arbitrary prompts, write a comparison manifest, launch the gallery, and return the selected winner.</p>
+          </article>
+          <article class="phase">
+            <div class="phase-num">Next 2</div>
+            <h3>Run history</h3>
+            <p>Add <code>comparison_runs.jsonl</code> so the skill can analyze prompts, model choices, rankings, comments, and winners over time.</p>
+          </article>
+          <article class="phase">
+            <div class="phase-num">Next 3</div>
+            <h3>Standalone export</h3>
+            <p>Add a stricter checker or export path for fully copy-pastable provider files after the protocol has stabilized.</p>
+          </article>
+        </div>
+        <div class="principles">
+          <article class="principle">
+            <h3>Small adapters</h3>
+            <p>Keep provider differences visible inside provider files.</p>
+          </article>
+          <article class="principle">
+            <h3>Protocol first</h3>
+            <p>Make cross-script behavior explicit and testable.</p>
+          </article>
+          <article class="principle">
+            <h3>Image-first review</h3>
+            <p>Do not let controls, metadata, or commentary dominate the images being judged.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Tracked reference for <code>skills/image-gen</code>. Generated images, gallery runs, feedback, and evaluation screenshots belong under ignored <code>outputs/</code> and <code>data/</code>; reusable source inputs belong under tracked <code>assets/</code>.</p>
+    </footer>
+  </main>
+</body>
+</html>

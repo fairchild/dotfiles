@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Comparison Review</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --fg: #181916;
+      --muted: #6d6d65;
+      --line: #d9d9d2;
+      --panel: #ffffff;
+      --image-bg: #efefeb;
+      --accent: #2f6f5f;
+      --danger: #a13a32;
+      --shadow: 0 10px 26px rgb(15 20 18 / 10%);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151614;
+        --fg: #f4f3ee;
+        --muted: #a7a79f;
+        --line: #363832;
+        --panel: #20211f;
+        --image-bg: #181917;
+        --accent: #79cdb5;
+        --danger: #ff9d91;
+        --shadow: 0 12px 28px rgb(0 0 0 / 34%);
+      }
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 26px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    details {
+      margin-top: 5px;
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    summary {
+      width: fit-content;
+      cursor: pointer;
+      user-select: none;
+    }
+    .prompt {
+      margin: 6px 0 0;
+      overflow-wrap: anywhere;
+    }
+    .toolbar {
+      display: flex;
+      gap: 7px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--fg);
+      min-height: 32px;
+      padding: 0 11px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button:hover {
+      border-color: var(--accent);
+    }
+    button:focus-visible,
+    textarea:focus-visible,
+    summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+    }
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      margin-left: 6px;
+      border: 1px solid color-mix(in srgb, currentColor 38%, transparent);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    button.ghost {
+      background: transparent;
+    }
+    button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 26px 22px;
+      align-items: start;
+    }
+    main.chrome-hidden header,
+    main.chrome-hidden .review,
+    main.chrome-hidden:not(.details-visible) figcaption {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .candidate {
+      position: relative;
+      margin: 0;
+      cursor: grab;
+    }
+    .candidate.winner .image-button {
+      border-color: var(--accent);
+      outline: 2px solid color-mix(in srgb, var(--accent) 26%, transparent);
+    }
+    .candidate.dragging {
+      opacity: 0.45;
+    }
+    .candidate.pulse {
+      animation: pulse 540ms ease-out;
+    }
+    .image-button {
+      display: block;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--image-bg);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+    /* Principle: never obscure the generated image; review metadata must live outside the image area. */
+    figcaption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 42px;
+      margin-top: 10px;
+      padding: 0 4px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.25;
+      opacity: 0;
+      transition: opacity 140ms ease;
+    }
+    .candidate:hover figcaption,
+    .candidate:has(.regen:focus-visible) figcaption,
+    main.details-visible figcaption {
+      opacity: 1;
+    }
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      margin-right: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .regen {
+      min-height: 34px;
+      padding: 0 12px;
+      font-size: 15px;
+    }
+    .save-state {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .save-state.saved {
+      border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+      color: var(--accent);
+    }
+    .save-state.unsaved {
+      border-color: color-mix(in srgb, #a87816 58%, var(--line));
+      color: #8a6412;
+    }
+    .save-state.saving {
+      border-color: color-mix(in srgb, var(--accent) 36%, var(--line));
+      color: var(--muted);
+    }
+    .save-state.error {
+      border-color: color-mix(in srgb, var(--danger) 58%, var(--line));
+      color: var(--danger);
+    }
+    .review {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      margin-top: 28px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 46px;
+      max-height: 150px;
+      resize: vertical;
+      border: 0;
+      border-radius: 0;
+      padding: 8px 0;
+      background: transparent;
+      color: var(--fg);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    textarea::placeholder {
+      color: var(--muted);
+    }
+    textarea:focus-visible {
+      outline-offset: 4px;
+    }
+    .status {
+      min-width: 180px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-align: right;
+    }
+    .status.error {
+      color: var(--danger);
+    }
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 34%, transparent), var(--shadow);
+      }
+      100% {
+        box-shadow: 0 0 0 10px transparent, var(--shadow);
+      }
+    }
+    @media (max-width: 760px) {
+      main {
+        padding: 10px;
+      }
+      header,
+      .review {
+        grid-template-columns: 1fr;
+      }
+      .toolbar {
+        justify-content: flex-start;
+      }
+      .status {
+        min-width: 0;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="chrome-hidden">
+    <header>
+      <div>
+        <h1 id="title">Image comparison</h1>
+        <details open>
+          <summary>Prompt</summary>
+          <p class="prompt" id="prompt"></p>
+        </details>
+      </div>
+      <div class="toolbar">
+        <button class="ghost" id="refresh" title="Reload manifest, image files, and saved feedback from disk" aria-label="Reload manifest, image files, and saved feedback from disk">Reload files</button>
+        <button class="ghost" id="toggle-details" aria-pressed="false">Reveal details <span class="key" aria-hidden="true">R</span></button>
+        <button id="regen-all">Regenerate all</button>
+        <span class="save-state unsaved" id="save-state" aria-live="polite">Unsaved</span>
+        <button class="primary" id="save">Save <span class="key" aria-hidden="true">S</span></button>
+      </div>
+    </header>
+
+    <section class="grid" id="grid" aria-label="Ranked image candidates"></section>
+
+    <section class="review" aria-label="Save review">
+      <textarea id="comment" placeholder="Comment (optional)"></textarea>
+      <p class="status" id="status"></p>
+    </section>
+  </main>
+
+  <script>
+    let state = null;
+    let ranking = [];
+    let busy = false;
+    let detailsVisible = false;
+    let activePath = null;
+    let didInitialFocus = false;
+    let dirty = true;
+    let clickRanking = [];
+    let chromeVisible = false;
+
+    const $ = (id) => document.getElementById(id);
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        headers: {"content-type": "application/json"},
+        ...options
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+      return data;
+    }
+
+    async function loadState() {
+      setStatus("Loading...");
+      state = await api("/api/state");
+      const saved = state.feedback || {};
+      clickRanking = [];
+      ranking = saved.ranking && saved.ranking.length
+        ? reconcileRanking(saved.ranking, saved.outputs || state.outputs, state.outputs)
+        : state.outputs.map((item) => item.path);
+      for (const item of state.outputs) {
+        if (!ranking.includes(item.path)) ranking.push(item.path);
+      }
+      $("comment").value = saved.comment || saved.comments || "";
+      render();
+      dirty = !state.feedback;
+      setSaveIndicator(dirty ? "unsaved" : "saved");
+      setStatus("Click images in preferred order. Leftmost saves as winner.");
+      if (!didInitialFocus) {
+        didInitialFocus = true;
+        focusCandidate(ranking[0]);
+      }
+    }
+
+    function render() {
+      $("title").textContent = state.id || "Image comparison";
+      $("prompt").textContent = state.prompt || "";
+      updateDetailsToggle();
+      applyChromeVisibility();
+      renderCards();
+    }
+
+    function sortedOutputs() {
+      const byPath = new Map(state.outputs.map((item) => [item.path, item]));
+      return ranking.map((path) => byPath.get(path)).filter(Boolean);
+    }
+
+    function renderCards() {
+      const grid = $("grid");
+      grid.innerHTML = "";
+      sortedOutputs().forEach((item, index) => {
+        const displayLabel = displayLabelFor(item, index);
+        const figure = document.createElement("figure");
+        figure.className = index === 0 ? "candidate winner" : "candidate";
+        figure.draggable = true;
+        figure.dataset.path = item.path;
+        // Principle: keep all card chrome outside the image so the pixels being judged stay unobscured.
+        figure.innerHTML = `
+          <button class="image-button" title="Click to rank ${escapeHtml(displayLabel)}" aria-label="${escapeHtml(displayLabel)}. Click images in preferred order to rank them. Use left and right arrow keys to focus images; use up and down arrows to rank them.">
+            <img src="/file/${encodeURIComponent(item.path)}?v=${encodeURIComponent(item.cache_bust || "")}" alt="${escapeHtml(displayLabel)}">
+          </button>
+          <figcaption>
+            <span class="label"><span class="rank">${index + 1}</span>${escapeHtml(displayLabel)}</span>
+            <button class="regen" data-action="regen" aria-label="Regenerate ${escapeHtml(displayLabel)}">Regenerate</button>
+          </figcaption>
+        `;
+        figure.addEventListener("focusin", () => {
+          activePath = item.path;
+        });
+        figure.querySelector(".image-button").addEventListener("click", () => rankFromImageClick(item.path));
+        figure.querySelector("[data-action='regen']").addEventListener("click", (event) => {
+          event.stopPropagation();
+          regenerate({
+            path: item.path,
+            candidate_id: candidateIdFor(item),
+            provider: item.provider,
+            model: item.model
+          });
+        });
+        wireDrag(figure, grid);
+        grid.appendChild(figure);
+      });
+    }
+
+    function rankFromImageClick(path) {
+      if (!ranking.includes(path)) return;
+      if (clickRanking.length >= ranking.length || clickRanking.includes(path)) {
+        clickRanking = [];
+      }
+      clickRanking.push(path);
+      ranking = [
+        ...clickRanking,
+        ...ranking.filter((item) => !clickRanking.includes(item))
+      ];
+      activePath = path;
+      render();
+      focusCandidate(path);
+      flashCandidate(path);
+      markDirty();
+      setStatus(`${displayLabelForPath(path)} ranked ${clickRanking.length}.`);
+    }
+
+    function updateDetailsToggle() {
+      const button = $("toggle-details");
+      button.innerHTML = `${detailsVisible ? "Hide details" : "Reveal details"} <span class="key" aria-hidden="true">R</span>`;
+      button.setAttribute("aria-pressed", String(detailsVisible));
+    }
+
+    function applyChromeVisibility() {
+      $("app").classList.toggle("chrome-hidden", !chromeVisible);
+      $("app").classList.toggle("details-visible", detailsVisible);
+    }
+
+    function showChrome() {
+      chromeVisible = true;
+      applyChromeVisibility();
+    }
+
+    function hideChrome() {
+      chromeVisible = false;
+      applyChromeVisibility();
+    }
+
+    function wireDrag(card, grid) {
+      card.addEventListener("dragstart", (event) => {
+        card.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", card.dataset.path);
+      });
+      card.addEventListener("dragend", () => card.classList.remove("dragging"));
+      card.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        const dragging = grid.querySelector(".dragging");
+        if (!dragging || dragging === card) return;
+        const box = card.getBoundingClientRect();
+        const after = event.clientY > box.top + box.height / 2
+          || (Math.abs(event.clientY - (box.top + box.height / 2)) < 12
+            && event.clientX > box.left + box.width / 2);
+        grid.insertBefore(dragging, after ? card.nextSibling : card);
+      });
+      card.addEventListener("drop", (event) => {
+        event.preventDefault();
+        clickRanking = [];
+        ranking = [...grid.querySelectorAll(".candidate")].map((el) => el.dataset.path);
+        render();
+        markDirty();
+        setStatus("Order updated.");
+      });
+    }
+
+    function moveToFirst(path) {
+      const changed = ranking[0] !== path;
+      clickRanking = [];
+      activePath = path;
+      ranking = [path, ...ranking.filter((item) => item !== path)];
+      render();
+      focusCandidate(path);
+      flashCandidate(path);
+      if (changed) markDirty();
+      setStatus(`Winner: ${displayLabelForPath(path)}`);
+    }
+
+    function moveBy(path, delta) {
+      const index = ranking.indexOf(path);
+      if (index < 0) return;
+      const target = Math.max(0, Math.min(ranking.length - 1, index + delta));
+      if (target === index) return;
+      clickRanking = [];
+      const next = ranking.slice();
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      ranking = next;
+      activePath = path;
+      render();
+      focusCandidate(path);
+      flashCandidate(path);
+      markDirty();
+      setStatus("Order updated.");
+    }
+
+    async function saveFeedback() {
+      if (busy) return;
+      busy = true;
+      setButtons(false);
+      setSaveIndicator("saving");
+      setStatus("Saving...");
+      try {
+        const result = await api("/api/feedback", {
+          method: "POST",
+          body: JSON.stringify({
+            winner_path: ranking[0],
+            ranking,
+            comment: $("comment").value
+          })
+        });
+        dirty = false;
+        clickRanking = [];
+        setSaveIndicator("saved");
+        setStatus(`Saved. Winner: ${result.winner_path}`);
+      } catch (error) {
+        setSaveIndicator("error");
+        setStatus(error.message, true);
+      } finally {
+        busy = false;
+        setButtons(true);
+      }
+    }
+
+    async function regenerate(payload) {
+      if (busy) return;
+      if (payload.all && !confirm("Regenerate every candidate? This may make several paid API calls.")) {
+        return;
+      }
+      const previousOutputs = state ? state.outputs.slice() : [];
+      const previousRanking = ranking.slice();
+      const previousActivePath = activePath;
+      busy = true;
+      setButtons(false);
+      setStatus(payload.all ? "Regenerating all..." : "Regenerating...");
+      try {
+        state = await api("/api/regenerate", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        clickRanking = [];
+        ranking = reconcileRanking(previousRanking, previousOutputs, state.outputs);
+        activePath = nextPathFor(payload.path || previousActivePath, previousOutputs, state.outputs) || ranking[0];
+        render();
+        focusCandidate(activePath);
+        markDirty();
+        setStatus("Regeneration complete.");
+      } catch (error) {
+        setStatus(error.message, true);
+      } finally {
+        busy = false;
+        setButtons(true);
+      }
+    }
+
+    function setButtons(enabled) {
+      document.querySelectorAll("button").forEach((button) => {
+        button.disabled = !enabled;
+      });
+    }
+
+    function setStatus(message, error = false) {
+      const status = $("status");
+      status.textContent = message || "";
+      status.className = error ? "status error" : "status";
+    }
+
+    function setSaveIndicator(stateName) {
+      const indicator = $("save-state");
+      const labels = {
+        saved: "Saved",
+        unsaved: "Unsaved",
+        saving: "Saving",
+        error: "Save failed"
+      };
+      indicator.textContent = labels[stateName] || "";
+      indicator.className = `save-state ${stateName}`;
+    }
+
+    function markDirty() {
+      dirty = true;
+      setSaveIndicator("unsaved");
+    }
+
+    function labelFor(item) {
+      if (!item) return "unknown";
+      return `${item.provider}:${item.model}`;
+    }
+
+    function candidateIdFor(item) {
+      if (!item) return "";
+      return item.candidate_id || `${item.provider}:${item.model}`;
+    }
+
+    function reconcileRanking(previousRanking, previousOutputs, nextOutputs) {
+      const previousByPath = new Map(previousOutputs.map((item) => [item.path, candidateIdFor(item)]));
+      const nextById = new Map(nextOutputs.map((item) => [candidateIdFor(item), item.path]));
+      const nextPaths = new Set(nextOutputs.map((item) => item.path));
+      const nextRanking = [];
+      previousRanking.forEach((path) => {
+        const nextPath = nextById.get(previousByPath.get(path)) || (nextPaths.has(path) ? path : null);
+        if (nextPath && !nextRanking.includes(nextPath)) nextRanking.push(nextPath);
+      });
+      nextOutputs.forEach((item) => {
+        if (!nextRanking.includes(item.path)) nextRanking.push(item.path);
+      });
+      return nextRanking;
+    }
+
+    function nextPathFor(previousPath, previousOutputs, nextOutputs) {
+      const previous = previousOutputs.find((item) => item.path === previousPath);
+      if (!previous) return previousPath;
+      const next = nextOutputs.find((item) => candidateIdFor(item) === candidateIdFor(previous));
+      return next ? next.path : previousPath;
+    }
+
+    function displayLabelFor(item, index) {
+      return detailsVisible ? labelFor(item) : `Image ${index + 1}`;
+    }
+
+    function displayLabelForPath(path) {
+      const items = sortedOutputs();
+      const index = items.findIndex((item) => item.path === path);
+      if (index < 0) return "image";
+      return displayLabelFor(items[index], index);
+    }
+
+    function focusCandidate(path) {
+      if (!path) return;
+      requestAnimationFrame(() => {
+        const card = [...document.querySelectorAll(".candidate")]
+          .find((element) => element.dataset.path === path);
+        const target = card ? card.querySelector(".image-button") : null;
+        if (target) target.focus({preventScroll: true});
+      });
+    }
+
+    function focusByDelta(delta) {
+      const items = sortedOutputs();
+      if (!items.length) return;
+      const current = items.findIndex((item) => item.path === activePath);
+      const nextIndex = Math.max(0, Math.min(items.length - 1, (current < 0 ? 0 : current) + delta));
+      activePath = items[nextIndex].path;
+      focusCandidate(activePath);
+      setStatus(`${displayLabelForPath(activePath)} focused.`);
+    }
+
+    function flashCandidate(path) {
+      requestAnimationFrame(() => {
+        const card = [...document.querySelectorAll(".candidate")]
+          .find((element) => element.dataset.path === path);
+        if (!card) return;
+        card.classList.remove("pulse");
+        void card.offsetWidth;
+        card.classList.add("pulse");
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function toggleDetails() {
+      detailsVisible = !detailsVisible;
+      render();
+      if (activePath) focusCandidate(activePath);
+      setStatus(detailsVisible ? "Generator details revealed." : "Generator details hidden.");
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.target.matches("textarea,input")) return;
+      if (!state) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        hideChrome();
+        return;
+      }
+      if (event.key.toLowerCase() === "s" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        saveFeedback();
+        return;
+      }
+      if (event.key.toLowerCase() === "r" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        toggleDetails();
+        return;
+      }
+      const number = Number(event.key);
+      if (number >= 1 && number <= state.outputs.length) {
+        const item = sortedOutputs()[number - 1];
+        if (item) moveToFirst(item.path);
+      }
+      if (event.key === "ArrowLeft" && activePath) {
+        event.preventDefault();
+        focusByDelta(-1);
+      }
+      if (event.key === "ArrowRight" && activePath) {
+        event.preventDefault();
+        focusByDelta(1);
+      }
+      if (event.key === "ArrowUp" && activePath) {
+        event.preventDefault();
+        moveBy(activePath, -1);
+      }
+      if (event.key === "ArrowDown" && activePath) {
+        event.preventDefault();
+        moveBy(activePath, 1);
+      }
+      if (event.key === "Home" && activePath) {
+        event.preventDefault();
+        moveToFirst(activePath);
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        saveFeedback();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (event.target.closest(".candidate,button,textarea,input,select,a,summary")) return;
+      if (chromeVisible) {
+        hideChrome();
+      } else {
+        showChrome();
+      }
+    });
+
+    $("comment").addEventListener("input", markDirty);
+    $("save").addEventListener("click", saveFeedback);
+    $("refresh").addEventListener("click", loadState);
+    $("toggle-details").addEventListener("click", toggleDetails);
+    $("regen-all").addEventListener("click", () => regenerate({all: true}));
+    loadState().catch((error) => setStatus(error.message, true));
+  </script>
+</body>
+</html>

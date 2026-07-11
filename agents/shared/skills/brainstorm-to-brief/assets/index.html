@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[PROJECT] Design Brainstorm</title>
+  <style>
+    :root {
+      --bg-primary: #f5f5f5;
+      --bg-secondary: white;
+      --bg-tertiary: #fafafa;
+      --bg-hover: #f5f5f5;
+      --text-primary: #1a1a1a;
+      --text-secondary: #333;
+      --text-muted: #666;
+      --text-faint: #555;
+      --border-color: #e0e0e0;
+      --border-hover: #ccc;
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      --accent-cyan: #0ea5e9;
+      --shadow: rgba(0,0,0,0.1);
+      --context-bg: #fffbeb;
+      --context-border: #fcd34d;
+      --context-text: #78350f;
+      --context-heading: #92400e;
+      --meta-bg: #e8f4f8;
+      --meta-text: #475569;
+      --meta-heading: #0c4a6e;
+      --meta-code: #cce7f0;
+      --prompt-active-bg: #f0f9ff;
+      --prompt-active-text: #0369a1;
+      --danger-text: #dc2626;
+      --danger-border: #fecaca;
+      --danger-bg: #fef2f2;
+      --success-text: #16a34a;
+      --card-image-bg: #1a1a1a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #2a2a2a;
+        --bg-hover: #333;
+        --text-primary: #f0f0f0;
+        --text-secondary: #e0e0e0;
+        --text-muted: #a0a0a0;
+        --text-faint: #888;
+        --border-color: #3a3a3a;
+        --border-hover: #555;
+        --accent-blue: #60a5fa;
+        --accent-blue-hover: #3b82f6;
+        --accent-cyan: #22d3ee;
+        --shadow: rgba(0,0,0,0.4);
+        --context-bg: #2d2518;
+        --context-border: #92400e;
+        --context-text: #fcd34d;
+        --context-heading: #fbbf24;
+        --meta-bg: #1a2c35;
+        --meta-text: #94a3b8;
+        --meta-heading: #38bdf8;
+        --meta-code: #0c4a6e;
+        --prompt-active-bg: #0c4a6e;
+        --prompt-active-text: #7dd3fc;
+        --danger-text: #f87171;
+        --danger-border: #7f1d1d;
+        --danger-bg: #2d1a1a;
+        --success-text: #4ade80;
+        --card-image-bg: #0a0a0a;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+    }
+
+    header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border-color); }
+    .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+    .header-left { flex: 1; }
+    h1 { margin: 0 0 0.5rem 0; color: var(--text-primary); }
+    .subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+    .nav-links { display: flex; gap: 1rem; }
+    .nav-links a {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+    }
+    .nav-links a:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .nav-links a.current { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+
+    .context-block {
+      background: var(--context-bg);
+      border: 1px solid var(--context-border);
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .context-block summary {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      color: var(--context-heading);
+      font-weight: 600;
+      font-size: 1.1rem;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .context-block summary::-webkit-details-marker { display: none; }
+    .context-block summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+    .context-block[open] summary::before { transform: rotate(90deg); }
+    .context-block .context-content { padding: 0 1.5rem 1.5rem; }
+    .context-block p { margin: 0.75rem 0; color: var(--context-text); line-height: 1.6; }
+    .context-block ul { margin: 0.75rem 0; padding-left: 1.5rem; color: var(--context-text); }
+    .context-block li { margin: 0.4rem 0; line-height: 1.5; }
+    .context-block strong { color: var(--context-heading); }
+
+    .meta-info {
+      background: var(--meta-bg);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .meta-info h3 { margin: 0 0 0.5rem 0; color: var(--meta-heading); }
+    .meta-info p { margin: 0.25rem 0; color: var(--meta-text); }
+    .meta-info code { background: var(--meta-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9rem; }
+
+    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
+
+    .card {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-image {
+      background: var(--card-image-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      min-height: 300px;
+    }
+
+    .card-image img {
+      max-width: 100%;
+      max-height: 500px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .card-image img:hover { transform: scale(1.02); }
+    .card-content { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+
+    .card-number {
+      background: var(--accent-blue);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .card-title { margin: 0; font-size: 1.25rem; color: var(--text-primary); flex: 1; margin-left: 0.75rem; }
+    .card-description { color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+    .prompt-section { margin-top: auto; }
+
+    .prompt-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .prompt-toggle:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .prompt-toggle.active { background: var(--prompt-active-bg); border-color: var(--accent-cyan); color: var(--prompt-active-text); }
+
+    .prompt-content {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .prompt-content.visible { display: block; }
+    .prompt-content pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; font-size: 0.8rem; color: var(--text-faint); line-height: 1.6; }
+
+    .feedback-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+
+    .feedback-section textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      resize: vertical;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .feedback-section textarea:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    .feedback-section label { display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .rating { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+
+    .rating button {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .rating button:hover { background: var(--bg-hover); }
+    .rating button.selected { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+    .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2rem; cursor: pointer; }
+
+    .feedback-summary {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .feedback-summary h2 { margin: 0 0 0.5rem 0; color: var(--text-primary); }
+    .feedback-summary .description { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .summary-controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+    .summary-controls button {
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .summary-controls button:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+    .summary-controls button.primary { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+    .summary-controls button.primary:hover { background: var(--accent-blue-hover); }
+    .summary-controls button.danger { color: var(--danger-text); border-color: var(--danger-border); }
+    .summary-controls button.danger:hover { background: var(--danger-bg); border-color: var(--danger-text); }
+    .copy-success { color: var(--success-text); font-size: 0.875rem; opacity: 0; transition: opacity 0.3s; }
+    .copy-success.visible { opacity: 1; }
+
+    #summary-output {
+      width: 100%;
+      min-height: 300px;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      resize: vertical;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    #summary-output:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color); color: var(--text-muted); font-size: 0.875rem; }
+    footer a { color: var(--accent-blue); }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .gallery { grid-template-columns: 1fr; }
+      .header-top { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <div class="header-left">
+        <h1>[PROJECT] Design Brainstorm</h1>
+        <p class="subtitle">AI-generated mockups for [brief description]</p>
+      </div>
+      <nav class="nav-links">
+        <a href="../design-brief.html">Design Brief</a>
+        <a href="../stories/index.html">Story Flows</a>
+        <a href="index.html" class="current">Screen Exploration</a>
+      </nav>
+    </div>
+  </header>
+
+  <details class="context-block">
+    <summary>Context for Reviewers</summary>
+    <div class="context-content">
+      <p>
+        <strong>What is [Product]?</strong> [1-2 sentence description of the product
+        and what problem it solves.]
+      </p>
+      <p><strong>Key Design Constraints:</strong></p>
+      <ul>
+        <li><strong>[Constraint 1]:</strong> [Explanation]</li>
+        <li><strong>[Constraint 2]:</strong> [Explanation]</li>
+        <li><strong>[Constraint 3]:</strong> [Explanation]</li>
+      </ul>
+      <p><strong>Target Users:</strong> [Description of who will use this product]</p>
+      <p><strong>What We're Looking For:</strong></p>
+      <ul>
+        <li>[Feedback question 1]?</li>
+        <li>[Feedback question 2]?</li>
+        <li>[Feedback question 3]?</li>
+      </ul>
+      <p>
+        <strong>These are early concept mockups</strong>, not final designs. The goal is to explore
+        UI direction and identify problems before implementation. Honest critique is valuable.
+      </p>
+    </div>
+  </details>
+
+  <div class="meta-info">
+    <h3>Generation Details</h3>
+    <p><strong>Model:</strong> <code>[Model name]</code></p>
+    <p><strong>Generated:</strong> [Date]</p>
+    <p><strong>Purpose:</strong> [Purpose of this brainstorm]</p>
+  </div>
+
+  <div class="gallery">
+    <!-- TEMPLATE: Copy this card block for each mockup -->
+    <div class="card">
+      <div class="card-image">
+        <img src="01-screen-name.png" alt="[Screen description]" onclick="openLightbox(this.src)">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <span class="card-number">1</span>
+          <h2 class="card-title">[Screen Title]</h2>
+        </div>
+        <p class="card-description">
+          [Brief description of what this screen shows and its purpose in the user flow.]
+        </p>
+        <div class="prompt-section">
+          <button class="prompt-toggle" onclick="togglePrompt(this)">
+            <span>Show prompt</span>
+          </button>
+          <div class="prompt-content">
+            <pre>[The prompt used to generate this mockup]</pre>
+          </div>
+        </div>
+        <div class="feedback-section">
+          <div class="rating" data-screen="screen-1">
+            <button onclick="rate(this, 'love')">Love it</button>
+            <button onclick="rate(this, 'like')">Like</button>
+            <button onclick="rate(this, 'meh')">Meh</button>
+            <button onclick="rate(this, 'dislike')">Needs work</button>
+          </div>
+          <label for="feedback-1">Notes & feedback:</label>
+          <textarea id="feedback-1" placeholder="What works? What doesn't? Ideas for improvement..."></textarea>
+        </div>
+      </div>
+    </div>
+    <!-- END TEMPLATE -->
+  </div>
+
+  <div class="feedback-summary">
+    <h2>Feedback Summary</h2>
+    <p class="description">All your ratings and notes compiled into copy-pastable text.</p>
+    <div class="summary-controls">
+      <button class="primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+      <button onclick="incrementVersion()">Bump Version</button>
+      <button onclick="refreshSummary()">Refresh</button>
+      <button class="danger" onclick="clearAllFeedback()">Clear All</button>
+      <span class="copy-success" id="copy-success">Copied!</span>
+    </div>
+    <textarea id="summary-output" readonly placeholder="Rate mockups and add notes above. Your feedback will appear here..."></textarea>
+  </div>
+
+  <footer>
+    <p><strong>How to give feedback:</strong> Rate each mockup and add notes. The summary box compiles everything for copy-paste.</p>
+    <p>See also: <a href="../design-brief.html">Design Brief</a> | <a href="../stories/index.html">Story Flows</a></p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="Enlarged view">
+  </div>
+
+  <script>
+    // CUSTOMIZE: Update this object to match your screens
+    const screenMeta = {
+      'screen-1': { number: 1, title: '[Screen 1 Title]', file: '01-screen-name.png' },
+    };
+
+    // CUSTOMIZE: Update this to match your project name
+    const projectName = '[PROJECT]';
+    const storageKey = `${projectName.toLowerCase().replace(/\s+/g, '-')}-feedback`;
+    const ratingEmoji = { 'love': '++', 'like': '+', 'meh': '~', 'dislike': '-' };
+
+    function togglePrompt(button) {
+      const content = button.nextElementSibling;
+      content.classList.toggle('visible');
+      button.classList.toggle('active');
+      button.querySelector('span').textContent = content.classList.contains('visible') ? 'Hide prompt' : 'Show prompt';
+    }
+
+    function rate(button, rating) {
+      const ratingGroup = button.parentElement;
+      ratingGroup.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+      button.classList.add('selected');
+      const screen = ratingGroup.dataset.screen;
+      const feedback = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      feedback[screen] = feedback[screen] || {};
+      feedback[screen].rating = rating;
+      localStorage.setItem(storageKey, JSON.stringify(feedback));
+      refreshSummary();
+    }
+
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function getVersion() { return parseInt(localStorage.getItem(`${storageKey}-version`) || '1', 10); }
+
+    function incrementVersion() {
+      localStorage.setItem(`${storageKey}-version`, (getVersion() + 1).toString());
+      refreshSummary();
+    }
+
+    function generateSummary() {
+      const feedback = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      const screens = Object.keys(screenMeta);
+      const hasAnyFeedback = screens.some(s => feedback[s]?.rating || feedback[s]?.notes?.trim());
+      if (!hasAnyFeedback) return '';
+      const version = getVersion();
+      const today = new Date().toISOString().split('T')[0];
+      let summary = `## ${projectName} Design Feedback\n**Version:** ${version} | **Date:** ${today}\n**Legend:** [++] love, [+] like, [~] meh, [-] needs work\n`;
+      const skipped = screens.filter(s => !feedback[s]?.rating && !feedback[s]?.notes?.trim()).map(s => screenMeta[s].number);
+      if (skipped.length > 0) summary += `**Skipped:** ${skipped.join(', ')} (no feedback)\n`;
+      summary += '\n';
+      screens.forEach(screen => {
+        const meta = screenMeta[screen], data = feedback[screen] || {};
+        if (data.rating || data.notes?.trim()) {
+          summary += `### ${meta.number}. ${meta.title}${data.rating ? ' [' + ratingEmoji[data.rating] + ']' : ''}\n`;
+          if (data.notes?.trim()) summary += `${data.notes.trim()}\n`;
+          summary += '\n';
+        }
+      });
+      return summary.trim();
+    }
+
+    function refreshSummary() { document.getElementById('summary-output').value = generateSummary(); }
+
+    function copyToClipboard() {
+      const text = document.getElementById('summary-output').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const el = document.getElementById('copy-success');
+        el.classList.add('visible');
+        setTimeout(() => el.classList.remove('visible'), 2000);
+      });
+    }
+
+    function clearAllFeedback() {
+      if (!confirm('Clear all ratings and notes?')) return;
+      localStorage.removeItem(storageKey);
+      document.querySelectorAll('.rating button').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.feedback-section textarea').forEach(t => t.value = '');
+      refreshSummary();
+    }
+
+    // Initialize
+    document.querySelectorAll('.feedback-section textarea').forEach(textarea => {
+      const screen = textarea.closest('.card').querySelector('.rating').dataset.screen;
+      const feedback = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (feedback[screen]?.notes) textarea.value = feedback[screen].notes;
+      let timer;
+      textarea.addEventListener('input', () => {
+        const feedback = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        feedback[screen] = feedback[screen] || {};
+        feedback[screen].notes = textarea.value;
+        localStorage.setItem(storageKey, JSON.stringify(feedback));
+        clearTimeout(timer);
+        timer = setTimeout(refreshSummary, 300);
+      });
+    });
+
+    document.querySelectorAll('.rating').forEach(ratingGroup => {
+      const screen = ratingGroup.dataset.screen;
+      const feedback = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (feedback[screen]?.rating) {
+        const btn = ratingGroup.querySelector(`button[onclick*="${feedback[screen].rating}"]`);
+        if (btn) btn.classList.add('selected');
+      }
+    });
+
+    refreshSummary();
+  </script>
+</body>
+</html>
