@@ -17,40 +17,7 @@ fail() {
     exit 1
 }
 
-	required_paths=(
-		.gitleaks.toml
-    .gitignore
-    .mise.toml
-    LICENSE
-    README.md
-    ROADMAP.md
-		docs/policy.md
-		docs/public-safety.md
-		docs/source-runtime-contract.md
-		docs/sync.md
-    install.sh
-    install/pins.toml
-		scripts/check-public-contract.sh
-		scripts/check-public-safety.sh
-    scripts/doctor.sh
-    scripts/install-agents.sh
-    scripts/install-brew.sh
-    scripts/install-git.sh
-    scripts/install-zsh.sh
-		scripts/restore-shared-skills.sh
-		scripts/sync.sh
-		scripts/test-install.sh
-		scripts/test-agent-runtime.sh
-		scripts/test-git-runtime.sh
-		scripts/test-sync.sh
-		scripts/test-public-safety.sh
-	)
-
-for path in "${required_paths[@]}"; do
-    [[ -e "$ROOT/$path" ]] || fail "required public path is absent: $path"
-    git -C "$ROOT" ls-files --error-unmatch "$path" >/dev/null 2>&1 \
-		|| fail "required public path is not tracked: $path"
-done
+"$ROOT/scripts/check-repository-completeness.sh"
 
 if rg -n 'raw\.githubusercontent\.com/fairchild/dotfiles/main' \
     "$ROOT/README.md" "$ROOT/install.sh" "$ROOT/docs" >/dev/null; then

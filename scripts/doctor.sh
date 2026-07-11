@@ -124,6 +124,13 @@ else
     warn "$DOTFILES_DIR has uncommitted changes"
 fi
 
+# --- required public source is present and publishable ---
+if "$DOTFILES_DIR/scripts/check-repository-completeness.sh" >/dev/null 2>&1; then
+    ok "required public entrypoints and local references are tracked"
+else
+    fail "public repository is incomplete (run \`mise run check:completeness\`)"
+fi
+
 # --- repo on master ---
 branch="$(git -C "$DOTFILES_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 case "$branch" in

@@ -79,5 +79,10 @@ jobs:
           fi
           ./scripts/check-public-safety.sh "${args[@]}"
 
+      - name: Verify repository completeness
+        run: |
+          ./scripts/check-repository-completeness.sh
+          ./scripts/test-repository-completeness.sh
+
       - name: Exercise positive and negative fixtures
         run: ./scripts/test-public-safety.sh
