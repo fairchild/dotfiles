@@ -32,7 +32,8 @@ fi
 mkdir -p "$RUNTIME_DIR"
 
 materialize_first_party() {
-	local source name destination expected
+	local source name destination expected backup_root backup
+	backup_root="$AGENTS_ROOT/runtime-backups"
 	while IFS= read -r source; do
 		name="$(basename "$source")"
 		destination="$RUNTIME_DIR/$name"
@@ -48,8 +49,15 @@ materialize_first_party() {
 			fi
 			ln -sfn "$expected" "$destination"
 		elif [[ -e "$destination" ]]; then
-			echo "FAIL: refusing to replace non-symlink first-party destination: $destination" >&2
-			return 1
+			if [[ "$MODE" == "--check" ]]; then
+				echo "FAIL: first-party destination is a legacy real path: $destination" >&2
+				return 1
+			fi
+			mkdir -p "$backup_root"
+			backup="$backup_root/$name-$(date -u +%Y%m%dT%H%M%SZ)"
+			mv "$destination" "$backup"
+			echo "BACKED UP: legacy $name runtime -> $backup"
+			ln -s "$expected" "$destination"
 		elif [[ "$MODE" == "--check" ]]; then
 			echo "FAIL: first-party skill is not materialized: $name" >&2
 			return 1

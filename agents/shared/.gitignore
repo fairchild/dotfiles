@@ -1,5 +1,6 @@
 # Runtime materialized from tracked first-party sources and the third-party lock.
 /skills/
+/runtime-backups/
 
 # Machine-local plugin configuration and scratch handoffs never belong in public source.
 /plugins/
