@@ -30,6 +30,8 @@ mise run install:agents
 mise run install:skills
 mise run install:brew
 mise run check:public      # verify public entrypoints and a fixture bootstrap
+mise run check:safety      # reject secrets, private runtime, and unsafe vendoring
+mise run test:safety       # exercise positive and negative safety fixtures
 ```
 
 The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A smaller future orchestration surface is tracked in [#2](https://github.com/fairchild/dotfiles/issues/2); it is not required for the current release.
@@ -39,6 +41,8 @@ The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A
 Tracked files are public source. Private overlays such as `~/.gitconfig.local` and `~/.zshrc.local` are created outside Git and included by the public base configuration. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
 
 The remaining source/runtime boundary work—including moving mutable generated state out of the checkout—is specified in [#20](https://github.com/fairchild/dotfiles/issues/20). Until that lands, inspect `git status` before publishing changes.
+
+Publication checks and the narrowly scoped override process are documented in [`docs/public-safety.md`](docs/public-safety.md).
 
 ## Participants
 

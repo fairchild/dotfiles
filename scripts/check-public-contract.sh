@@ -17,24 +17,28 @@ fail() {
     exit 1
 }
 
-required_paths=(
+	required_paths=(
+		.gitleaks.toml
     .gitignore
     .mise.toml
     LICENSE
     README.md
     ROADMAP.md
-    docs/policy.md
+		docs/policy.md
+		docs/public-safety.md
     install.sh
     install/pins.toml
-    scripts/check-public-contract.sh
+		scripts/check-public-contract.sh
+		scripts/check-public-safety.sh
     scripts/doctor.sh
     scripts/install-agents.sh
     scripts/install-brew.sh
     scripts/install-git.sh
     scripts/install-zsh.sh
     scripts/restore-shared-skills.sh
-    scripts/test-install.sh
-)
+		scripts/test-install.sh
+		scripts/test-public-safety.sh
+	)
 
 for path in "${required_paths[@]}"; do
     [[ -e "$ROOT/$path" ]] || fail "required public path is absent: $path"
