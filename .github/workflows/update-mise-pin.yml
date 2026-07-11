@@ -30,8 +30,14 @@ jobs:
           set -euo pipefail
           version=$(awk -F'"' '/^version/ {print $2; exit}' install/pins.toml)
           fpr=$(awk -F'"' '/gpg_key_fingerprint/ {print $2; exit}' install/pins.toml)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "fingerprint=$fpr"  >> "$GITHUB_OUTPUT"
+          key_url=$(awk -F'"' '/gpg_key_url/ {print $2; exit}' install/pins.toml)
+          [ -n "$version" ] && [ -n "$fpr" ] && [ -n "$key_url" ] \
+            || { echo "::error::incomplete mise pin metadata"; exit 2; }
+          {
+            echo "version=$version"
+            echo "fingerprint=$fpr"
+            echo "key_url=$key_url"
+          } >> "$GITHUB_OUTPUT"
           echo "Currently pinned: $version (key $fpr)"
 
       - name: Fetch latest upstream release tag
@@ -52,18 +58,19 @@ jobs:
           echo "Already on $(steps.current.outputs.version) — no PR needed."
           exit 0
 
-      - name: Import jdx GPG key
+      - name: Import pinned mise release key
         if: steps.latest.outputs.version != steps.current.outputs.version
         run: |
           set -euo pipefail
-          curl -fsSL https://github.com/jdx.gpg | gpg --import
-          imported_fpr=$(gpg --with-colons --fingerprint jdx@github.com 2>/dev/null \
+          GNUPGHOME="$RUNNER_TEMP/mise-gpg"
+          export GNUPGHOME
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          install -d -m 700 "$GNUPGHOME"
+          curl -fsSL "${{ steps.current.outputs.key_url }}" | gpg --batch --import
+          imported_fpr=$(gpg --batch --with-colons --fingerprint 2>/dev/null \
             | awk -F: '/^fpr:/ {print $10; exit}')
-          if [ -z "$imported_fpr" ]; then
-            # Fallback: get any fpr from the imported key
-            imported_fpr=$(gpg --with-colons --list-keys 2>/dev/null \
-              | awk -F: '/^fpr:/ {print $10; exit}')
-          fi
+          [ -n "$imported_fpr" ] \
+            || { echo "::error::release key import produced no fingerprint"; exit 2; }
           echo "Imported fingerprint: $imported_fpr"
           echo "Pinned fingerprint:   ${{ steps.current.outputs.fingerprint }}"
           if [ "$imported_fpr" != "${{ steps.current.outputs.fingerprint }}" ]; then
@@ -174,4 +181,3 @@ jobs:
             registry changes).
           branch: chore/bump-mise-pin
           delete-branch: true
-          cleanup: never
