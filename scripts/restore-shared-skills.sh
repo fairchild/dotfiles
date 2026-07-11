@@ -28,6 +28,13 @@ fi
 
 mkdir -p "$RUNTIME_DIR"
 
+realpath_py() {
+	python3 - "$1" <<'PY'
+import os, sys
+print(os.path.realpath(os.path.expanduser(sys.argv[1])))
+PY
+}
+
 backup_destination() {
 	local destination="$1" name="$2" backup
 	mkdir -p "$BACKUP_ROOT"
@@ -43,7 +50,8 @@ materialize_first_party() {
 		destination="$RUNTIME_DIR/$name"
 		expected="$FIRST_PARTY_DIR/$name"
 
-		if [[ -L "$destination" && "$(readlink "$destination")" == "$expected" ]]; then
+		if [[ -L "$destination" \
+			&& "$(realpath_py "$destination")" == "$(realpath_py "$expected")" ]]; then
 			continue
 		fi
 		if [[ "$MODE" == "--check" ]]; then
