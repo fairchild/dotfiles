@@ -27,6 +27,7 @@ fail() {
 		docs/policy.md
 		docs/public-safety.md
 		docs/source-runtime-contract.md
+		docs/sync.md
     install.sh
     install/pins.toml
 		scripts/check-public-contract.sh
@@ -36,10 +37,12 @@ fail() {
     scripts/install-brew.sh
     scripts/install-git.sh
     scripts/install-zsh.sh
-    scripts/restore-shared-skills.sh
+		scripts/restore-shared-skills.sh
+		scripts/sync.sh
 		scripts/test-install.sh
 		scripts/test-agent-runtime.sh
 		scripts/test-git-runtime.sh
+		scripts/test-sync.sh
 		scripts/test-public-safety.sh
 	)
 

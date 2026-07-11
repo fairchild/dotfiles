@@ -41,4 +41,4 @@ A participant declares its public source checkout and runtime path separately. D
 - known generated/private runtime is allowed;
 - an unknown path or write-through link is a warning or failure until classified.
 
-Bootstrap creates or migrates runtime without pulling private state into source. Sync updates public source, rematerializes generated runtime, and then runs doctor. The operational sync sequence is tracked in [#21](https://github.com/fairchild/dotfiles/issues/21).
+Bootstrap creates or migrates runtime without pulling private state into source. Sync updates public source, rematerializes generated runtime, and then runs doctor. The fail-closed sequence and offline mode are documented in [`sync.md`](sync.md).

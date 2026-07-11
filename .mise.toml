@@ -68,14 +68,14 @@ run = "./scripts/test-agent-runtime.sh"
 description = "Prove global Git writes cannot mutate tracked public source"
 run = "./scripts/test-git-runtime.sh"
 
+[tasks."test:sync"]
+description = "Exercise sync convergence and failure paths with local remotes"
+run = "./scripts/test-sync.sh"
+
 [tasks."check:gitleaks"]
 description = "Scan the tracked public tree with the pinned Gitleaks configuration"
 run = "gitleaks dir --no-banner --redact --config .gitleaks.toml ."
 
 [tasks.sync]
-description = "Fast-forward ~/.config/dotfiles to origin/master"
-run = """
-cd $DOTFILES_DIR
-git fetch --quiet origin
-git merge --ff-only origin/master
-"""
+description = "Fast-forward public source, rematerialize runtime, and run doctor"
+run = "./scripts/sync.sh"
