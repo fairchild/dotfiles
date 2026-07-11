@@ -1,0 +1,106 @@
+name: Public bootstrap smoke
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/bootstrap-smoke.yml"
+      - ".mise.toml"
+      - "install.sh"
+      - "install/**"
+      - "home/**"
+      - "agents/**"
+      - "scripts/**"
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/bootstrap-smoke.yml"
+      - ".mise.toml"
+      - "install.sh"
+      - "install/**"
+      - "home/**"
+      - "agents/**"
+      - "scripts/**"
+  schedule:
+    - cron: "17 13 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    name: ${{ matrix.profile }} on ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            profile: mac-personal
+          - runner: ubuntu-latest
+            profile: codespace
+          - runner: ubuntu-latest
+            profile: cloud-vm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Select exact public source
+        id: source
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            source_sha="$PR_HEAD_SHA"
+          else
+            source_sha="$EVENT_SHA"
+          fi
+          echo "sha=$source_sha" >> "$GITHUB_OUTPUT"
+          echo "raw_base=https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/$source_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Bootstrap from public installer
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          RAW_BASE: ${{ steps.source.outputs.raw_base }}
+          PROFILE: ${{ matrix.profile }}
+        run: |
+          set -o pipefail
+          fixture_home="$RUNNER_TEMP/dotfiles-home"
+          mkdir -p "$fixture_home" "$RUNNER_TEMP/bootstrap-diagnostics"
+          curl -fsSL "$RAW_BASE/install.sh" |
+            env \
+              HOME="$fixture_home" \
+              DOTFILES_RAW_BASE="$RAW_BASE" \
+              DOTFILES_GIT_REF="$SOURCE_SHA" \
+              DOTFILES_PROFILE="$PROFILE" \
+              DOTFILES_BOOTSTRAP_PACKAGE_MODE=check \
+              sh 2>&1 | tee "$RUNNER_TEMP/bootstrap-diagnostics/install.log"
+
+      - name: Verify installed core
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -o pipefail
+          fixture_home="$RUNNER_TEMP/dotfiles-home"
+          env \
+            HOME="$fixture_home" \
+            PATH="$fixture_home/.local/bin:$PATH" \
+            DOTFILES_DIR="$fixture_home/.config/dotfiles" \
+            DOTFILES_EXPECTED_GIT_REF="$SOURCE_SHA" \
+            "$fixture_home/.config/dotfiles/scripts/doctor.sh" --core \
+            2>&1 | tee "$RUNNER_TEMP/bootstrap-diagnostics/doctor.log"
+
+      - name: Verify documented public URL
+        if: github.event_name == 'schedule'
+        run: curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/master/install.sh >/dev/null
+
+      - name: Preserve diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootstrap-${{ matrix.profile }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/bootstrap-diagnostics/
+          if-no-files-found: warn

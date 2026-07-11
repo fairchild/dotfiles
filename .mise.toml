@@ -17,7 +17,11 @@ run = """
 mise run install:zsh
 mise run install:git
 mise run install:agents
-mise run install:brew
+if [ "${DOTFILES_BOOTSTRAP_PACKAGE_MODE:-install}" = "check" ]; then
+  ./scripts/install-brew.sh --check-profile
+else
+  mise run install:brew
+fi
 """
 
 [tasks."install:zsh"]

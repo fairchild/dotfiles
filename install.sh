@@ -20,6 +20,7 @@ set -eu
 REPO_URL="${DOTFILES_REPO_URL:-https://github.com/fairchild/dotfiles.git}"
 RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/fairchild/dotfiles/master}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
+GIT_REF="${DOTFILES_GIT_REF:-}"
 LOCAL_BIN="$HOME/.local/bin"
 
 log()  { printf '\033[36m==>\033[0m %s\n' "$*" >&2; }
@@ -41,13 +42,20 @@ esac
 platform="$os-$arch"
 
 # Pick a profile so subsequent `mise run bootstrap` knows what we're on.
-if [ -n "${CODESPACES:-}" ]; then
+if [ -n "${DOTFILES_PROFILE:-}" ]; then
+    profile="$DOTFILES_PROFILE"
+elif [ -n "${CODESPACES:-}" ]; then
     profile="codespace"
 elif [ "$os" = "macos" ]; then
     profile="mac-personal"
 else
     profile="cloud-vm"
 fi
+
+case "$os:$profile" in
+    macos:mac-personal|linux:codespace|linux:cloud-vm) ;;
+    *) fail "unsupported platform/profile pair: $os/$profile" ;;
+esac
 export MISE_ENV="$profile"
 log "platform=$platform profile=$profile"
 
@@ -122,7 +130,16 @@ else
     git clone "$REPO_URL" "$DOTFILES_DIR"
 fi
 
+if [ -n "$GIT_REF" ]; then
+    log "checking out exact source ref $GIT_REF"
+    git -C "$DOTFILES_DIR" fetch --depth=1 origin "$GIT_REF"
+    git -C "$DOTFILES_DIR" checkout --detach FETCH_HEAD
+    export DOTFILES_EXPECTED_GIT_REF="$GIT_REF"
+fi
+
 # --- 5. hand off to mise run bootstrap ---
 cd "$DOTFILES_DIR"
+log "trusting cloned mise configuration"
+"$mise_target" trust "$DOTFILES_DIR/.mise.toml"
 log "handing off to: mise run bootstrap (profile=$profile)"
 exec "$mise_target" run bootstrap

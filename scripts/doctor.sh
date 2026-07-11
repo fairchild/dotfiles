@@ -3,7 +3,13 @@
 set -u
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
+MODE="${1:-all}"
 worst=0   # 0=OK, 1=WARN, 2=FAIL
+
+case "$MODE" in
+    all|--core) ;;
+    *) echo "usage: $0 [--core]" >&2; exit 2 ;;
+esac
 
 ok()   { printf '\033[32mOK\033[0m:   %s\n' "$*"; }
 warn() { printf '\033[33mWARN\033[0m: %s\n' "$*"; worst=$(( worst > 1 ? worst : 1 )); }
@@ -18,7 +24,8 @@ PY
 
 # --- ~/.zshrc symlink ---
 expected_zshrc="$DOTFILES_DIR/home/.zshrc"
-if [[ -L "$HOME/.zshrc" ]] && [[ "$(readlink "$HOME/.zshrc")" == "$expected_zshrc" ]]; then
+if [[ -L "$HOME/.zshrc" ]] \
+	&& [[ "$(realpath_py "$HOME/.zshrc")" == "$(realpath_py "$expected_zshrc")" ]]; then
     ok "$HOME/.zshrc -> $expected_zshrc"
 else
     warn "$HOME/.zshrc is not a symlink to the repo (run \`mise run install:zsh\`)"
@@ -32,7 +39,10 @@ else
     fail "$HOME/.gitconfig is missing or linked into public source (run \`mise run install:git\`)"
 fi
 
-public_include_count="$(git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null | grep -Fxc "$expected_gitconfig" || true)"
+expected_gitconfig="$(realpath_py "$expected_gitconfig")"
+public_include_count="$(git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null \
+	| while IFS= read -r include_path; do realpath_py "$include_path"; done \
+	| grep -Fxc "$expected_gitconfig" || true)"
 local_include_count="$(git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null | grep -Fxc "$HOME/.gitconfig.local" || true)"
 if [[ "$public_include_count" == "1" && "$local_include_count" == "1" ]]; then
     ok "private Git loader includes public base and local overlay exactly once"
@@ -131,13 +141,23 @@ else
     fail "public repository is incomplete (run \`mise run check:completeness\`)"
 fi
 
-# --- repo on master ---
+# --- repo on the expected source ref or default branch ---
 branch="$(git -C "$DOTFILES_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-case "$branch" in
-    master|main) ok "$DOTFILES_DIR on $branch" ;;
-    "")          fail "$DOTFILES_DIR is not a git checkout" ;;
-    *)           warn "$DOTFILES_DIR on '$branch' (not master/main)" ;;
-esac
+if [[ -n "${DOTFILES_EXPECTED_GIT_REF:-}" ]]; then
+	expected_commit="$(git -C "$DOTFILES_DIR" rev-parse "$DOTFILES_EXPECTED_GIT_REF^{commit}" 2>/dev/null || true)"
+	actual_commit="$(git -C "$DOTFILES_DIR" rev-parse HEAD 2>/dev/null || true)"
+	if [[ -n "$expected_commit" && "$actual_commit" == "$expected_commit" ]]; then
+		ok "$DOTFILES_DIR is at requested source ref $DOTFILES_EXPECTED_GIT_REF"
+	else
+		fail "$DOTFILES_DIR is not at requested source ref $DOTFILES_EXPECTED_GIT_REF"
+	fi
+else
+	case "$branch" in
+		master|main) ok "$DOTFILES_DIR on $branch" ;;
+		"")          fail "$DOTFILES_DIR is not a git checkout" ;;
+		*)           warn "$DOTFILES_DIR on '$branch' (not master/main)" ;;
+	esac
+fi
 
 # --- mise version matches pin ---
 pinned="$(awk -F'"' '/^version/ {print $2; exit}' "$DOTFILES_DIR/install/pins.toml" 2>/dev/null || true)"
@@ -152,14 +172,16 @@ else
     warn "mise $running is behind pinned $pinned (run \`./install.sh\` to install the pinned version)"
 fi
 
-# --- shell can find core tools ---
-for cmd in starship fzf rg fd jq gh; do
-    if command -v "$cmd" &>/dev/null; then
-        ok "found $cmd"
-    else
-        warn "$cmd not on PATH (\`mise run install:brew\`?)"
-    fi
-done
+# --- shell can find optional workstation tools ---
+if [[ "$MODE" != "--core" ]]; then
+	for cmd in starship fzf rg fd jq gh; do
+		if command -v "$cmd" &>/dev/null; then
+			ok "found $cmd"
+		else
+			warn "$cmd not on PATH (\`mise run install:brew\`?)"
+		fi
+	done
+fi
 
 case "$worst" in
     0) printf '\n\033[32mAll OK.\033[0m\n' ;;

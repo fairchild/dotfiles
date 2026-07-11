@@ -3,6 +3,12 @@
 set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
+MODE="${1:-install}"
+
+case "$MODE" in
+	install|--check-profile) ;;
+	*) echo "usage: $0 [--check-profile]" >&2; exit 2 ;;
+esac
 
 # --- profile selection ---
 profile="${MISE_ENV:-}"
@@ -32,6 +38,15 @@ if [[ ! -f "$brewfile" ]]; then
     exit 2
 fi
 echo "OK: profile=$profile brewfile=$brewfile"
+
+if [[ "$MODE" == "--check-profile" ]]; then
+	if ! grep -Eq '^(brew|tap|cask|mas) ' "$brewfile"; then
+		echo "FAIL: $brewfile has no recognized Brew bundle entries" >&2
+		exit 2
+	fi
+	echo "OK: package profile contract is valid (installation intentionally skipped)"
+	exit 0
+fi
 
 # --- brew availability ---
 if ! command -v brew &>/dev/null; then
