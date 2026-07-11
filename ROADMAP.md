@@ -14,13 +14,14 @@ Turn the umbrella from "working solo on this Mac" into "monitored + cross-repo a
 | # | Issue | Why now |
 |---|---|---|
 | 1 | [#11](https://github.com/fairchild/dotfiles/issues/11) — fix `update-mise-pin.yml` GPG key URL | Small; restores weekly auto-bump |
-| 2 | [#2](https://github.com/fairchild/dotfiles/issues/2) — TypeScript CLI (`dotfiles doctor` / `--skill` / `join` / `add` / `pins`) | Half-day; unblocks Phase 2 issues #8, #9, #10 |
-| 3 | [#4](https://github.com/fairchild/dotfiles/issues/4) — `bootstrap-smoke.yml` matrix workflow | High signal, low ongoing cost; catches Codespace bootstrap regressions weekly |
-| 4 | [#3](https://github.com/fairchild/dotfiles/issues/3) — `doctor.yml` + `doctor-reusable.yml` | PR-time check + reusable callable for participant repos |
-| 5 | [#5](https://github.com/fairchild/dotfiles/issues/5) — onboard dotpi as T3 participant | Compounds value with #2 |
-| 6 | [#6](https://github.com/fairchild/dotfiles/issues/6) — onboard dotclaude as T3 participant | Same shape as #5 |
-| 7 | [#12](https://github.com/fairchild/dotfiles/issues/12) — `scripts/doctor.sh` check for whitelist `.gitignore` silently dropping new top-level files | Foundational durability — bit phase-0 twice (`.zshrc.local.example`, `ROADMAP.md`) |
-| 8 | [#13](https://github.com/fairchild/dotfiles/issues/13) — fix `git config --global` writes leaking through symlinked `~/.gitconfig` | Pairs with #12 in the "preventative gotcha" bucket |
+| 2 | [#16](https://github.com/fairchild/dotfiles/issues/16) — gate public changes against secrets, runtime data, and oversized diffs | Prevents a repeat of the PR #14 publication failure |
+| 3 | [#2](https://github.com/fairchild/dotfiles/issues/2) — TypeScript CLI (`dotfiles doctor` / `--skill` / `join` / `add` / `pins`) | Half-day; unblocks Phase 2 issues #8, #9, #10 |
+| 4 | [#4](https://github.com/fairchild/dotfiles/issues/4) — `bootstrap-smoke.yml` matrix workflow | High signal, low ongoing cost; catches Codespace bootstrap regressions weekly |
+| 5 | [#3](https://github.com/fairchild/dotfiles/issues/3) — `doctor.yml` + `doctor-reusable.yml` | PR-time check + reusable callable for participant repos |
+| 6 | [#5](https://github.com/fairchild/dotfiles/issues/5) — onboard dotpi as T3 participant | Compounds value with #2 |
+| 7 | [#6](https://github.com/fairchild/dotfiles/issues/6) — onboard dotclaude as T3 participant | Same shape as #5 |
+| 8 | [#12](https://github.com/fairchild/dotfiles/issues/12) — `scripts/doctor.sh` check for whitelist `.gitignore` silently dropping new top-level files | Foundational durability — bit phase-0 twice (`.zshrc.local.example`, `ROADMAP.md`) |
+| 9 | [#13](https://github.com/fairchild/dotfiles/issues/13) — fix `git config --global` writes leaking through symlinked `~/.gitconfig` | Pairs with #12 in the "preventative gotcha" bucket |
 
 ## Phase 2 — cursor onboarding + polish
 
