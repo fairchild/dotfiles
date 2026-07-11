@@ -8,7 +8,9 @@ ROADMAP.md|Current intent and work order
 install.sh|Copy-paste bootstrap entrypoint
 install/pins.toml|Verified external tool pins
 .github/workflows/public-safety.yml|Required publication gate
+.github/workflows/repository-contract.yml|Required deterministic repository gate
 .github/workflows/update-mise-pin.yml|Verified pin updater
+docs/ci.md|CI contract and local reproduction
 docs/policy.md|Repository invariants
 docs/public-safety.md|Publication gate documentation
 docs/repository-completeness.md|Whitelist completeness documentation
@@ -17,6 +19,7 @@ docs/sync.md|Sync convergence contract
 agents/shared/README.md|Shared agent source topology
 agents/shared/third-party-skills.lock.json|Immutable third-party provenance
 scripts/check-public-contract.sh|Public bootstrap contract check
+scripts/check-ci.sh|Deterministic pull-request check suite
 scripts/check-public-safety.sh|Repository-specific publication safety
 scripts/check-repository-completeness.sh|Tracked entrypoint and reference check
 scripts/doctor.sh|Installed-state health check
@@ -30,6 +33,7 @@ scripts/sync.sh|Source and runtime convergence
 scripts/test-agent-runtime.sh|Agent migration fixtures
 scripts/test-git-runtime.sh|Git write-boundary fixtures
 scripts/test-install.sh|Bootstrap fixtures
+scripts/test-ci-doctor.sh|Isolated CI doctor fixture
 scripts/test-public-safety.sh|Publication safety fixtures
 scripts/test-repository-completeness.sh|Whitelist completeness fixtures
 scripts/test-sync.sh|Sync convergence fixtures

@@ -19,14 +19,14 @@ fail() {
 
 "$ROOT/scripts/check-repository-completeness.sh"
 
-if rg -n 'raw\.githubusercontent\.com/fairchild/dotfiles/main' \
+if grep -R -n -E 'raw\.githubusercontent\.com/fairchild/dotfiles/main' \
     "$ROOT/README.md" "$ROOT/install.sh" "$ROOT/docs" >/dev/null; then
     fail "public documentation still references the nonexistent main branch"
 fi
 
-rg -F "$PUBLIC_INSTALL_URL" "$ROOT/README.md" >/dev/null \
+grep -F "$PUBLIC_INSTALL_URL" "$ROOT/README.md" >/dev/null \
     || fail "README does not contain the canonical public install URL"
-rg -F 'raw.githubusercontent.com/fairchild/dotfiles/master' "$ROOT/install.sh" >/dev/null \
+grep -F 'raw.githubusercontent.com/fairchild/dotfiles/master' "$ROOT/install.sh" >/dev/null \
     || fail "install.sh does not default to the canonical master raw base"
 
 sh -n "$ROOT/install.sh"

@@ -109,8 +109,14 @@ else
 fi
 
 # --- materialized shared skill inventory ---
-if "$DOTFILES_DIR/scripts/restore-shared-skills.sh" --check >/dev/null 2>&1; then
-    ok "shared skill runtime matches first-party sources and third-party lock"
+restore_check=--check
+restore_description="first-party sources and third-party lock"
+if [[ "${DOTFILES_SKIP_THIRD_PARTY_SKILLS:-0}" == "1" ]]; then
+	restore_check=--check-first-party
+	restore_description="first-party sources (third-party restore intentionally skipped)"
+fi
+if "$DOTFILES_DIR/scripts/restore-shared-skills.sh" "$restore_check" >/dev/null 2>&1; then
+    ok "shared skill runtime matches $restore_description"
 else
     warn "shared skill runtime is incomplete (run \`mise run install:skills\`)"
 fi
