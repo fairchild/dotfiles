@@ -154,7 +154,7 @@ mkdir -p "$DEST_DIR"
 if [[ "$ALL" -eq 1 ]]; then
   while IFS= read -r skill; do
     SKILLS+=("$skill")
-  done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)
+  done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 \( -type d -o -type l \) -exec basename {} \; | sort)
 fi
 
 if [[ ${#SKILLS[@]} -eq 0 ]]; then

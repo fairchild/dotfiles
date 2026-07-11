@@ -1,10 +1,14 @@
 # ~/.agents canonical assets
 
-This directory is the canonical home for cross-agent reusable assets.
+This directory is the canonical runtime home for cross-agent reusable assets.
+The public repository tracks first-party skill sources and a pinned third-party
+lock, then materializes the runtime `skills/` directory during installation.
 
 ## Layout
 
-- `skills/` — shared agent skills
+- `first-party-skills/` — tracked skills authored and maintained here
+- `third-party-skills.lock.json` — immutable upstream commits, paths, and Git trees
+- `skills/` — ignored runtime assembled from both sources
 - `prompts/` — shared prompt templates
 - `references/` — shared docs/snippets
 - `templates/` — reusable instruction fragments
@@ -19,6 +23,18 @@ Use `~/.agents` as the source of truth, then mount or symlink into each runtime:
 - `~/.Codex/skills/<name>` → per-skill symlink to `~/.agents/skills/<name>`
 
 This keeps one canonical copy of each shared skill while still allowing harness-specific local-only skills to live beside them.
+
+## Restore the runtime
+
+```bash
+mise run install:skills
+```
+
+First-party skills are linked from `first-party-skills/`. Third-party skills are
+fetched at the exact commit recorded in `third-party-skills.lock.json`, verified
+against the recorded Git tree, and copied into the ignored runtime directory.
+Use `DOTFILES_SKIP_THIRD_PARTY_SKILLS=1 mise run install:agents` for an offline
+first-party-only bootstrap.
 
 ## Scripts
 

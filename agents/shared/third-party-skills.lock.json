@@ -1,0 +1,186 @@
+{
+  "skills": {
+    "apple-hig-designer": {
+      "gitTree": "d926dec02377b8d739b3e20a5ff88b5c6d0cdb74",
+      "patch": "third-party-patches/apple-hig-designer.patch",
+      "ref": "2482c176372299c92af01f8414a67172f324e8db",
+      "skillPath": "skills/apple-hig-designer/SKILL.md",
+      "source": "jamesrochabrun/skills",
+      "sourceUrl": "https://github.com/jamesrochabrun/skills.git"
+    },
+    "apple-ui-designer": {
+      "gitTree": "f76c11773c5a44bd132f047afa55e4b759328af3",
+      "patch": "third-party-patches/apple-ui-designer.patch",
+      "ref": "92b76bf8e29dc4f7bb6b5ba48ac3dbdf4f9a1872",
+      "skillPath": "skills/apple-ui-designer/SKILL.md",
+      "source": "heyman333/atelier-ui",
+      "sourceUrl": "https://github.com/heyman333/atelier-ui.git"
+    },
+    "caveman": {
+      "gitTree": "17972a1bdbf5909b9dbdc435ad348f0bf45f8664",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/productivity/caveman/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "diagnose": {
+      "gitTree": "43d464d0e9d1049b9d525975c0f7367ab7e01a5f",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/diagnose/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "find-skills": {
+      "gitTree": "1c5b854a4bfa219f04d94ab8a014ff5551ae1191",
+      "ref": "44cd96fe7d40373e023329d9a87591b816b42562",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "source": "roin-orca/skills",
+      "sourceUrl": "https://github.com/roin-orca/skills.git"
+    },
+    "firecrawl": {
+      "gitTree": "462e63d49999b098ef5723706e47bf892708b9ec",
+      "patch": "third-party-patches/firecrawl.patch",
+      "ref": "f0a04c8684778c6a2c072ac373d1303fb3451bd2",
+      "skillPath": "skills/firecrawl-cli/SKILL.md",
+      "source": "firecrawl/cli",
+      "sourceUrl": "https://github.com/firecrawl/cli.git"
+    },
+    "grill-me": {
+      "gitTree": "2a1ad17028306ebe45f0e49703fa28b9b2e7f499",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "grill-with-docs": {
+      "gitTree": "3c4ac970c404e8d32c24f2725bfe679e455a925b",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "handoff": {
+      "gitTree": "85c644da8f99d073b434261f1e3fc058e2116236",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/productivity/handoff/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "improve-codebase-architecture": {
+      "gitTree": "3ad8fa787b3b9b622d1f5a3d0afc27812ac782fa",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "macos-development": {
+      "gitTree": "be162d23b883d0c157aaf0a822263c42b50aeb26",
+      "ref": "df01797013ccbd33908066f1b7cca8e96fe48ff6",
+      "skillPath": "skills/macos/SKILL.md",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceUrl": "https://github.com/rshankras/claude-code-apple-skills.git"
+    },
+    "orca-cli": {
+      "gitTree": "d1175a5a5807a6783a3d896f720645b39f736dbb",
+      "ref": "2dad1f04f375237a532b080b6e819a094652b339",
+      "skillPath": "skills/orca-cli/SKILL.md",
+      "source": "stablyai/orca",
+      "sourceUrl": "https://github.com/stablyai/orca.git"
+    },
+    "orchestration": {
+      "gitTree": "189912ad39f48b0a71f1cf0ee87abfcd55f90716",
+      "ref": "98d850aebae9f9e87ab20add8fd9cb53f33101a0",
+      "skillPath": "skills/orchestration/SKILL.md",
+      "source": "stablyai/orca",
+      "sourceUrl": "https://github.com/stablyai/orca.git"
+    },
+    "prototype": {
+      "gitTree": "c91bdc5d02d42ed88a3082a8fa83338895b55bd4",
+      "patch": "third-party-patches/prototype.patch",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/prototype/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "setup-matt-pocock-skills": {
+      "gitTree": "77638955bebe492948244f1338e54ca1a9445c29",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "slidev": {
+      "gitTree": "b877ce09e59aa9ab72c67342813b98ae704feb0f",
+      "ref": "87726519ee38a655000cea437c4aaa79cba82a51",
+      "skillPath": "skills/slidev/SKILL.md",
+      "source": "antfu/skills",
+      "sourceUrl": "https://github.com/antfu/skills.git"
+    },
+    "swiftui-expert-skill": {
+      "gitTree": "be27eadf725ba3d007b9230c227f83aa9e695dcd",
+      "installName": "swiftui-expert",
+      "patch": "third-party-patches/swiftui-expert-skill.patch",
+      "ref": "0f7d497e1f458476df5e27644f3e0e79470b855a",
+      "skillPath": "swiftui-expert-skill/SKILL.md",
+      "source": "avdlee/swiftui-agent-skill",
+      "sourceUrl": "https://github.com/avdlee/swiftui-agent-skill.git"
+    },
+    "tdd": {
+      "gitTree": "75beb3030b4c979205dd771ff85ac600baeb68f4",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/tdd/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "to-issues": {
+      "gitTree": "b38c5aa6ae5d6903e60d3f74a7aafd32d02f2c06",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/to-issues/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "to-prd": {
+      "gitTree": "d6eff3e99a325d2d9c2acbe31b4d76fa5340a154",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "triage": {
+      "gitTree": "de4f182c30876a2460ca307e2f601b9b892527e5",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/triage/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "vercel-react-best-practices": {
+      "gitTree": "079b06a135401704ea94ab74c7c9d86c92ba259f",
+      "ref": "e23951b8cad2f4b1e7e176c5731127c1263fe86f",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "source": "vercel-labs/agent-skills",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git"
+    },
+    "web-design-guidelines": {
+      "gitTree": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "ref": "e23951b8cad2f4b1e7e176c5731127c1263fe86f",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "source": "vercel-labs/agent-skills",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git"
+    },
+    "write-a-skill": {
+      "gitTree": "2f252b35aa238879afc5a230ac30343708dee0b3",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/productivity/write-a-skill/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    },
+    "zoom-out": {
+      "gitTree": "6ecebabdea814d12888f56a611da7bf182b5fb26",
+      "ref": "e74f0061bb67222181640effa98c675bdb2fdaa7",
+      "skillPath": "skills/engineering/zoom-out/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceUrl": "https://github.com/mattpocock/skills.git"
+    }
+  },
+  "version": 1
+}
