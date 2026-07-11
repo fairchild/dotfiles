@@ -18,7 +18,7 @@ A public read-only asset may be linked into runtime when its consumer only reads
 
 A path that an application may mutate must be a real private file or directory, or a private loader that includes public source. Materialized third-party skills are real generated directories marked with `.dotfiles-managed.json`; the marker is the authority to replace them on the next restore. An unmarked collision is backed up.
 
-`~/.gitconfig` is the remaining known exception to this rule and is fixed by [#13](https://github.com/fairchild/dotfiles/issues/13). The public shell base may remain linked because zsh reads it and writes private customization to `~/.zshrc.local`.
+`~/.gitconfig` is a real private loader. It includes the tracked public Git base first and `~/.gitconfig.local` last, so `git config --global` writes remain private. The public shell base may remain linked because zsh reads it and writes private customization to `~/.zshrc.local`.
 
 ## Agent runtime migration
 
