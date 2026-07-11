@@ -1,0 +1,5 @@
+# kind|path|content regex|reason
+# Paths are exact and the regex must match the reported finding. Broad directory
+# or path-only allowlists are forbidden.
+absolute-home|agents/shared/first-party-skills/analyze-usage/tests/test_analyze_usage.py|/Users/tester/|Synthetic paths exercise normalization
+private-key-content|agents/shared/first-party-skills/gh-apps/scripts/test_gh_apps.py|test-save.*BEGIN RSA PRIVATE KEY|Synthetic key material exercises credential persistence

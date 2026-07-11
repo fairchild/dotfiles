@@ -52,6 +52,18 @@ run = "./scripts/check-public-contract.sh"
 description = "Also verify the published raw installer URL resolves"
 run = "./scripts/check-public-contract.sh --network"
 
+[tasks."check:safety"]
+description = "Reject secrets, private runtime, and unmanaged third-party material"
+run = "./scripts/check-public-safety.sh"
+
+[tasks."test:safety"]
+description = "Exercise public-safety gates with positive and negative fixtures"
+run = "./scripts/test-public-safety.sh"
+
+[tasks."check:gitleaks"]
+description = "Scan the tracked public tree with the pinned Gitleaks configuration"
+run = "gitleaks dir --no-banner --redact --config .gitleaks.toml ."
+
 [tasks.sync]
 description = "Fast-forward ~/.config/dotfiles to origin/master"
 run = """

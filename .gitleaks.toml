@@ -1,0 +1,11 @@
+title = "dotfiles public-source scan"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Pinned public GPG fingerprints are identifiers, not credentials"
+regexTarget = "line"
+regexes = [
+  '''gpg_key_fingerprint\s*=\s*"[A-F0-9]{40}"''',
+]

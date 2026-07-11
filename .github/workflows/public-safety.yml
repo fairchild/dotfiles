@@ -1,0 +1,83 @@
+name: public-safety
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  public-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install pinned Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(awk -F'"' '/^\[gitleaks\]/{found=1; next} found && /^version/{print $2; exit}' install/pins.toml)
+          sha=$(awk -F'"' '/^\[gitleaks\]/{found=1; next} found && /^linux_x64_sha256/{print $2; exit}' install/pins.toml)
+          plain_version=${version#v}
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          url="https://github.com/gitleaks/gitleaks/releases/download/$version/gitleaks_${plain_version}_linux_x64.tar.gz"
+          curl -fsSL "$url" -o "$archive"
+          echo "$sha  $archive" | sha256sum -c -
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/gitleaks" version
+
+      - name: Scan changed commits with Gitleaks
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          case "$EVENT_NAME" in
+            pull_request) range="$PR_BASE_SHA..$PR_HEAD_SHA" ;;
+            push)
+              if [[ -n "$BEFORE_SHA" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+                range="$BEFORE_SHA..$HEAD_SHA"
+              else
+                range="--all"
+              fi
+              ;;
+            *) range="--all" ;;
+          esac
+          gitleaks git --no-banner --redact --config .gitleaks.toml --log-opts="$range" .
+
+      - name: Run repository-specific safety gate
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          LARGE_CHANGE_APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'large-public-change-approved') }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            args+=(--base "$PR_BASE_SHA" --head "$PR_HEAD_SHA")
+          elif [[ "$EVENT_NAME" == "push" && -n "$BEFORE_SHA" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+            args+=(--base "$BEFORE_SHA" --head "$HEAD_SHA")
+          fi
+          if [[ "$LARGE_CHANGE_APPROVED" == "true" ]]; then
+            export PUBLIC_SAFETY_LARGE_PR_APPROVED=1
+          fi
+          ./scripts/check-public-safety.sh "${args[@]}"
+
+      - name: Exercise positive and negative fixtures
+        run: ./scripts/test-public-safety.sh
