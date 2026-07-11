@@ -48,6 +48,13 @@ else
     warn "~/.pi/agent/skills is not a symlink to ~/.agents/skills (run \`mise run install:agents\`)"
 fi
 
+# --- materialized shared skill inventory ---
+if "$DOTFILES_DIR/scripts/restore-shared-skills.sh" --check >/dev/null 2>&1; then
+    ok "shared skill runtime matches first-party sources and third-party lock"
+else
+    warn "shared skill runtime is incomplete (run \`mise run install:skills\`)"
+fi
+
 # --- git identity present ---
 # Use plain `git config` (no --global) so [include]ed files like
 # ~/.gitconfig.local are followed. `git config --global --list` only reads

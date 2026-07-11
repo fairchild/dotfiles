@@ -59,7 +59,7 @@ dotty audit                  # `pi`-backed cross-repo audit (Dr. Dotty)
 ├── src/                  TypeScript source (bun)
 ├── scripts/              bash scripts; public ones carry #MISE description= header
 ├── home/                 files that symlink into $HOME (zsh fragments, gitconfig, Brewfiles)
-├── agents/shared/        canonical `~/.agents` shared skills, prompts, references, templates
+├── agents/shared/        `~/.agents` runtime plus first-party sources and third-party lock
 ├── docs/                 policy.md, architecture.md, manifest-conventions.md
 ├── templates/            scaffolding for `dotfiles join`
 ├── install.sh            POSIX sh bootstrap (pinned mise install)

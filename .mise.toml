@@ -36,8 +36,12 @@ description = "Symlink home/.gitconfig into $HOME; migrate [user] to ~/.gitconfi
 run = "./scripts/install-git.sh"
 
 [tasks."install:agents"]
-description = "Symlink ~/.agents to repo-managed shared agent assets"
+description = "Symlink ~/.agents and materialize first- and third-party skills"
 run = "./scripts/install-agents.sh"
+
+[tasks."install:skills"]
+description = "Restore shared skills from tracked first-party sources and the third-party lock"
+run = "./scripts/restore-shared-skills.sh"
 
 [tasks."install:brew"]
 description = "Install packages from the active profile's Brewfile"

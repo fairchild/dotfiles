@@ -1,0 +1,11 @@
+# Runtime materialized from tracked first-party sources and the third-party lock.
+/skills/
+
+# Machine-local plugin configuration and scratch handoffs never belong in public source.
+/plugins/
+/todo.md
+
+# Skill-local runtime histories and generated artifacts.
+**/data/*.jsonl
+**/outputs/*
+!**/outputs/README.md

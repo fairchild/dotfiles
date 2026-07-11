@@ -30,6 +30,12 @@ else
     echo "OK: ~/.agents → $REPO_AGENTS (no prior directory)"
 fi
 
+if [[ "${DOTFILES_SKIP_THIRD_PARTY_SKILLS:-0}" == "1" ]]; then
+    "$DOTFILES_DIR/scripts/restore-shared-skills.sh" --first-party-only
+else
+    "$DOTFILES_DIR/scripts/restore-shared-skills.sh"
+fi
+
 # Pi should consume the shared skill store through ~/.agents.
 PI_SKILLS="$HOME/.pi/agent/skills"
 EXPECTED_PI_SKILLS="$HOME_AGENTS/skills"

@@ -59,7 +59,7 @@ find_non_symlink_duplicates() {
     if [[ -d "$dst" && ! -L "$dst" ]]; then
       echo "$skill"
     fi
-  done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | sort)
+  done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 \( -type d -o -type l \) -exec basename {} \; | sort)
 }
 
 printf '## Shared Skills Audit\n\n'
@@ -83,7 +83,7 @@ while IFS= read -r skill_dir; do
     printf -- '- MISMATCH: dir=%s frontmatter=%s\n' "$skill" "$declared_name"
     name_issues=$((name_issues + 1))
   fi
-done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 -type d | sort)
+done < <(find "$CANONICAL_SKILLS_DIR" -maxdepth 1 -mindepth 1 \( -type d -o -type l \) | sort)
 if [[ "$name_issues" -eq 0 ]]; then
   printf -- '- OK: all canonical skill directories match frontmatter names\n'
 fi
