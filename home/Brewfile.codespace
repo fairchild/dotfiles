@@ -7,7 +7,7 @@
 #
 # No casks (headless environment). No taps (each adds ~30s to install).
 
-brew "mise"        # the spine — even Codespace needs it for `dotfiles doctor`
+brew "mise"        # the spine — Codespace uses it for `mise run doctor`
 brew "fd"
 brew "ripgrep"
 brew "fzf"

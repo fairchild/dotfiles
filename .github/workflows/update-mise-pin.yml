@@ -5,7 +5,8 @@ name: update-mise-pin
 # signature against the pinned fingerprint, and opens a PR with the new
 # pin values + an upstream changelog excerpt.
 #
-# CI on the PR (doctor.yml + bootstrap-smoke.yml) gates merge — no auto-merge.
+# The PR remains human-reviewed. Required doctor and bootstrap workflows are
+# tracked in #3 and #4; do not describe them as active until they ship.
 
 on:
   schedule:

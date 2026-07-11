@@ -2,7 +2,7 @@
 # install.sh — bootstrap entry point. Idempotent.
 #
 # Usage:
-#     curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install.sh | sh
+#     curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/master/install.sh | sh
 #
 # Steps:
 #   1. Detect OS + arch + profile (mac-personal, codespace, cloud-vm).
@@ -18,7 +18,7 @@
 set -eu
 
 REPO_URL="${DOTFILES_REPO_URL:-https://github.com/fairchild/dotfiles.git}"
-RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/fairchild/dotfiles/main}"
+RAW_BASE="${DOTFILES_RAW_BASE:-https://raw.githubusercontent.com/fairchild/dotfiles/master}"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
 LOCAL_BIN="$HOME/.local/bin"
 
@@ -69,7 +69,7 @@ log "pinning mise $mise_version ($platform)"
 
 # --- 3. download + verify mise ---
 binary_name="mise-$mise_version-$platform"
-download_url="https://github.com/jdx/mise/releases/download/$mise_version/$binary_name"
+download_url="${DOTFILES_MISE_DOWNLOAD_URL:-https://github.com/jdx/mise/releases/download/$mise_version/$binary_name}"
 
 mkdir -p "$LOCAL_BIN"
 mise_target="$LOCAL_BIN/mise"

@@ -10,8 +10,6 @@ lock, then materializes the runtime `skills/` directory during installation.
 - `third-party-skills.lock.json` — immutable upstream commits, paths, and Git trees
 - `skills/` — ignored runtime assembled from both sources
 - `prompts/` — shared prompt templates
-- `references/` — shared docs/snippets
-- `templates/` — reusable instruction fragments
 - `scripts/` — topology helpers for linking and auditing shared assets
 
 ## Recommended topology
@@ -20,7 +18,7 @@ Use `~/.agents` as the source of truth, then mount or symlink into each runtime:
 
 - `~/.pi/agent/skills` → whole-directory symlink to `~/.agents/skills`
 - `~/.claude/skills/<name>` → per-skill symlink to `~/.agents/skills/<name>`
-- `~/.Codex/skills/<name>` → per-skill symlink to `~/.agents/skills/<name>`
+- `~/.codex/skills/<name>` → per-skill symlink to `~/.agents/skills/<name>`
 
 This keeps one canonical copy of each shared skill while still allowing harness-specific local-only skills to live beside them.
 
@@ -56,16 +54,16 @@ Checks:
 Dry-run by default:
 
 ```bash
-~/.agents/scripts/link-shared-skills.sh claude code-review voice
-~/.agents/scripts/link-shared-skills.sh codex voice
+~/.agents/scripts/link-shared-skills.sh claude backlog vocal
+~/.agents/scripts/link-shared-skills.sh codex vocal
 ~/.agents/scripts/link-shared-skills.sh pi
 ```
 
 Apply changes:
 
 ```bash
-~/.agents/scripts/link-shared-skills.sh --apply claude code-review voice
-~/.agents/scripts/link-shared-skills.sh --apply codex voice
+~/.agents/scripts/link-shared-skills.sh --apply claude backlog vocal
+~/.agents/scripts/link-shared-skills.sh --apply codex vocal
 ```
 
 ## Naming
