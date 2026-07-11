@@ -1,73 +1,68 @@
 # dotfiles
 
-Umbrella for Michael's config-as-code constellation: [dotclaude](https://github.com/fairchild/dotclaude), [dotpi](https://github.com/fairchild/dotpi), [dotcursor](https://github.com/fairchild/dotcursor), and this repo. One CLI (`dotfiles`, plus an LLM-persona alias `dotty`) discovers participants, runs cross-repo health checks, and emits its own policy as an [agentskills.io](https://agentskills.io)-compatible skill so any agent picks up house rules automatically.
+Public source for Michael's shell, Git, Homebrew, and shared agent configuration, plus the conventions used by [dotclaude](https://github.com/fairchild/dotclaude), [dotpi](https://github.com/fairchild/dotpi), and [dotcursor](https://github.com/fairchild/dotcursor).
 
-Lives canonically at `~/.config/dotfiles/`. A symlink at `~/code/dotfiles` keeps ergonomic parity with the sibling repos.
+The repository is deliberately public so useful configuration and agent patterns can be copied, forked, and reused in open-source-only environments. Machine-local identity, secrets, generated runtime, logs, and caches do not belong in the tracked source.
 
-For what's next, see [`ROADMAP.md`](ROADMAP.md). For house rules and invariants, see [`docs/policy.md`](docs/policy.md).
+The canonical checkout lives at `~/.config/dotfiles/`. A symlink at `~/code/dotfiles` is optional local convenience.
 
-## install
+## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/master/install.sh | sh
 ```
 
-The installer detects OS + arch, picks a profile (`mac-personal`, `linux-personal`, `codespace`, `cloud-vm`), downloads a pinned [mise](https://mise.jdx.dev) build with SHA256 verification, clones this repo, and hands off to `mise run bootstrap`. mise then runs `home/`-symlinking, shared `~/.agents` symlinking, profile Brewfile, and agent install tasks.
+The installer detects the operating system and architecture, downloads the mise version pinned in [`install/pins.toml`](install/pins.toml), verifies its SHA-256 checksum, clones this repository, and runs `mise run bootstrap`.
 
-It will probably break on a platform we haven't smoke-tested yet. File an issue.
+It currently supports macOS and Linux on x86-64 and arm64. The personal package lists are opinionated; forking them is expected.
 
-## dotfiles
+## Shipped commands
 
-The policy in 30 seconds — the long form lives in [`docs/policy.md`](docs/policy.md).
+The current interface is mise plus small shell scripts:
 
-The repo is the ship; the planks are the configs. We replace planks one at a time, never the keel. The keel is a small set of invariants:
+```sh
+mise run bootstrap         # install shell, Git, agent, and package configuration
+mise run doctor            # inspect the current installation without repairing it
+mise run sync              # fast-forward the public source checkout
+mise run install:zsh
+mise run install:git
+mise run install:agents
+mise run install:skills
+mise run install:brew
+mise run check:public      # verify public entrypoints and a fixture bootstrap
+```
 
-- **`~/.claude` is always an independent clone on `main`.** Never a worktree, never a symlink. The reason is that hooks fire on every Claude session and a borrowed `.git` corrupts both ends.
-- **Whitelist `.gitignore`s.** Anything not explicitly opted in doesn't ride along. Turns the question from *what's noisy?* into *what's intentional?*.
-- **Tiered participation.** Any git repo is usable at tier 0. A `.mise.toml` lifts it to tier 1. A `[env] DOTFILES_NAME` line takes it to tier 2. A `doctor` and `bootstrap` task makes it a full tier 3 participant. No central manifest — repos declare themselves.
-- **Pin everything we don't control.** Supply chain over convenience. mise is pinned with SHA256 verification; an Actions workflow opens PRs to bump it. Brewfiles are next.
-- **`dotfiles` is deterministic; `dotty` is agentic.** The CLI runs in hooks and CI without an API key. The `dotty` persona shells out to `pi` for cross-repo audits when there's a human in the loop.
+The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A smaller future orchestration surface is tracked in [#2](https://github.com/fairchild/dotfiles/issues/2); it is not required for the current release.
 
-### participants
+## Source and runtime
 
-| Repo | Role | Runtime path |
+Tracked files are public source. Private overlays such as `~/.gitconfig.local` and `~/.zshrc.local` are created outside Git and included by the public base configuration. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
+
+The remaining source/runtime boundary work—including moving mutable generated state out of the checkout—is specified in [#20](https://github.com/fairchild/dotfiles/issues/20). Until that lands, inspect `git status` before publishing changes.
+
+## Participants
+
+| Repository | Role | Runtime path |
 |---|---|---|
-| [dotclaude](https://github.com/fairchild/dotclaude) | Claude Code config (skills, agents, hooks) | `~/.claude` |
-| [dotpi](https://github.com/fairchild/dotpi) | `pi` agent runtime config | `~/.pi/agent` |
-| [dotcursor](https://github.com/fairchild/dotcursor) | Cursor IDE config | `~/.cursor` |
-| dotfiles (this repo) | Shell, git, brew, shared `~/.agents` assets, the CLI itself | `$HOME` (selected fragments) |
+| [dotclaude](https://github.com/fairchild/dotclaude) | Claude Code configuration | `~/.claude` |
+| [dotpi](https://github.com/fairchild/dotpi) | Pi agent configuration | `~/.pi/agent` |
+| [dotcursor](https://github.com/fairchild/dotcursor) | Cursor configuration | `~/.cursor` |
+| dotfiles | Shell, Git, Homebrew, and shared agent sources | selected paths under `$HOME` |
 
-### CLI
+Participant declarations and cross-repository health aggregation are future work. GitHub Issues records the executable plan; [`ROADMAP.md`](ROADMAP.md) explains the order.
 
-```
-dotfiles doctor              # cross-repo health check, table output
-dotfiles doctor --json       # same, JSON
-dotfiles --skill             # emit SKILL.md to stdout
-dotfiles --skill --install   # write to ~/.claude/skills/dotfiles/SKILL.md
-dotfiles join <path>         # scaffold a participant repo
-dotfiles add <name> <path>   # register an external repo
-dotfiles pins                # current vs upstream lag
-dotty doctor                 # persona output (more opinionated)
-dotty audit                  # `pi`-backed cross-repo audit (Dr. Dotty)
-```
+## Layout
 
-## layout
-
-```
-~/.config/dotfiles/
-├── bin/                  compiled binary (downloaded at install or built locally)
-├── src/                  TypeScript source (bun)
-├── scripts/              bash scripts; public ones carry #MISE description= header
-├── home/                 files that symlink into $HOME (zsh fragments, gitconfig, Brewfiles)
-├── agents/shared/        `~/.agents` runtime plus first-party sources and third-party lock
-├── docs/                 policy.md, architecture.md, manifest-conventions.md
-├── templates/            scaffolding for `dotfiles join`
-├── install.sh            POSIX sh bootstrap (pinned mise install)
-├── install/pins.toml     mise version + per-platform SHA256s
-├── .github/workflows/    doctor, bootstrap-smoke, release, mise-pin updates
-└── legacy/               parked planks (the dry dock)
+```text
+home/                 public base configuration and package lists
+agents/shared/        first-party sources, third-party lock, patches, prompts
+scripts/              deterministic install, restore, doctor, and check scripts
+install.sh            POSIX bootstrap entrypoint
+install/pins.toml     pinned mise version, signing key, and platform checksums
+docs/policy.md        current invariants and conventions
+legacy/               preserved pre-umbrella configuration
 ```
 
-## lineage
+## Lineage
 
-This repo started life as a fork of [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles), the canonical pre-LLM-era starter. The original planks (`.bash_profile`, `.osx`, `.vim/`, the `bootstrap.sh` rsync) all live in [`legacy/`](legacy/) — preserved rather than deleted, since the ship metaphor requires a dry dock. Credit to the upstream contributors listed in [`legacy/README.original.md`](legacy/README.original.md) for the foundation. The umbrella restructure is a different shape on top of that foundation rather than a rejection of it.
+This repository started as a fork of [mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles). The original configuration remains under [`legacy/`](legacy/), with upstream credit in [`legacy/README.original.md`](legacy/README.original.md).

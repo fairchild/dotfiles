@@ -1,17 +1,10 @@
 # ~/.config/dotfiles/.mise.toml
-# Umbrella self-declaration. Makes the dotfiles repo a tier-3 participant
-# in its own conventions: identity in [env], install/doctor/sync tasks
-# wired up so `mise run bootstrap` does the whole thing.
+# Self-declaration for the deterministic install, doctor, and sync tasks.
 
 [env]
 DOTFILES_NAME    = "dotfiles"
 DOTFILES_RUNTIME = "~"
 DOTFILES_DIR     = "{{config_root}}"
-
-[tools]
-# bun is the eventual runtime for the Group E TypeScript CLI; declaring it
-# now is harmless and means `mise install` warms the cache for that work.
-bun = "latest"
 
 # Tasks are declared explicitly below so the colon-namespaced names
 # (install:zsh, install:git, install:brew) are canonical. Auto-discovery
@@ -50,6 +43,14 @@ run = "./scripts/install-brew.sh"
 [tasks.doctor]
 description = "Cross-check installed state against repo expectations"
 run = "./scripts/doctor.sh"
+
+[tasks."check:public"]
+description = "Verify public entrypoints, required paths, and fixture bootstrap"
+run = "./scripts/check-public-contract.sh"
+
+[tasks."check:public:network"]
+description = "Also verify the published raw installer URL resolves"
+run = "./scripts/check-public-contract.sh --network"
 
 [tasks.sync]
 description = "Fast-forward ~/.config/dotfiles to origin/master"
