@@ -8,7 +8,7 @@
       "skillPath": "skills/find-skills/SKILL.md",
       "skillFolderHash": "1c5b854a4bfa219f04d94ab8a014ff5551ae1191",
       "installedAt": "2026-01-31T07:17:30.094Z",
-      "updatedAt": "2026-03-14T04:09:57.036Z"
+      "updatedAt": "2026-06-27T20:47:49.255Z"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
@@ -37,15 +37,6 @@
       "installedAt": "2026-01-31T08:00:58.041Z",
       "updatedAt": "2026-01-31T08:00:58.041Z"
     },
-    "better-auth-best-practices": {
-      "source": "better-auth/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/better-auth/skills.git",
-      "skillPath": "better-auth/best-practices/SKILL.md",
-      "skillFolderHash": "83bdaa60f65da278dc513a64127f4e4db759cd20",
-      "installedAt": "2026-02-15T23:35:30.512Z",
-      "updatedAt": "2026-02-15T23:35:30.512Z"
-    },
     "swiftui-expert-skill": {
       "source": "avdlee/swiftui-agent-skill",
       "sourceType": "github",
@@ -54,15 +45,6 @@
       "skillFolderHash": "be27eadf725ba3d007b9230c227f83aa9e695dcd",
       "installedAt": "2026-02-23T06:02:28.694Z",
       "updatedAt": "2026-02-23T06:02:28.694Z"
-    },
-    "fun-brainstorming": {
-      "source": "roin-orca/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/roin-orca/skills.git",
-      "skillPath": "skills/fun-brainstorming/SKILL.md",
-      "skillFolderHash": "95d1fd07e43b654b67be22f834de2fb1c01f6a3d",
-      "installedAt": "2026-03-08T08:45:07.180Z",
-      "updatedAt": "2026-03-08T08:45:07.180Z"
     },
     "apple-ui-designer": {
       "source": "heyman333/atelier-ui",
@@ -242,45 +224,23 @@
       "installedAt": "2026-05-30T14:59:09.408Z",
       "updatedAt": "2026-05-30T14:59:09.408Z"
     },
-    "firecrawl-monitor": {
-      "source": "firecrawl/cli",
+    "orchestration": {
+      "source": "stablyai/orca",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/firecrawl/cli.git",
-      "skillPath": "skills/firecrawl-monitor/SKILL.md",
-      "skillFolderHash": "2ca7f99e5627f03b13366a56d859550a46e10aad",
-      "pluginName": "firecrawl",
-      "installedAt": "2026-05-30T14:59:09.412Z",
-      "updatedAt": "2026-05-30T14:59:09.412Z"
+      "sourceUrl": "https://github.com/stablyai/orca.git",
+      "skillPath": "skills/orchestration/SKILL.md",
+      "skillFolderHash": "189912ad39f48b0a71f1cf0ee87abfcd55f90716",
+      "installedAt": "2026-07-07T03:40:27.677Z",
+      "updatedAt": "2026-07-07T03:40:27.677Z"
     },
-    "firecrawl-parse": {
-      "source": "firecrawl/cli",
+    "orca-cli": {
+      "source": "stablyai/orca",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/firecrawl/cli.git",
-      "skillPath": "skills/firecrawl-parse/SKILL.md",
-      "skillFolderHash": "47dc5a97e63ef95e094ab78f4d2db1d3375f9286",
-      "pluginName": "firecrawl",
-      "installedAt": "2026-05-30T14:59:09.414Z",
-      "updatedAt": "2026-05-30T14:59:09.414Z"
-    },
-    "firecrawl-scrape": {
-      "source": "firecrawl/cli",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/firecrawl/cli.git",
-      "skillPath": "skills/firecrawl-scrape/SKILL.md",
-      "skillFolderHash": "1784b33814a99a615d765ad16aaa069a1ae79577",
-      "pluginName": "firecrawl",
-      "installedAt": "2026-05-30T14:59:09.415Z",
-      "updatedAt": "2026-05-30T14:59:09.415Z"
-    },
-    "firecrawl-search": {
-      "source": "firecrawl/cli",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/firecrawl/cli.git",
-      "skillPath": "skills/firecrawl-search/SKILL.md",
-      "skillFolderHash": "41ef6ac9682323c407679f8168a1776f62b3fb14",
-      "pluginName": "firecrawl",
-      "installedAt": "2026-05-30T14:59:09.416Z",
-      "updatedAt": "2026-05-30T14:59:09.416Z"
+      "sourceUrl": "https://github.com/stablyai/orca.git",
+      "skillPath": "skills/orca-cli/SKILL.md",
+      "skillFolderHash": "d1175a5a5807a6783a3d896f720645b39f736dbb",
+      "installedAt": "2026-07-07T19:03:45.971Z",
+      "updatedAt": "2026-07-07T19:03:45.971Z"
     }
   },
   "dismissed": {
@@ -288,14 +248,18 @@
   },
   "lastSelectedAgents": [
     "amp",
+    "antigravity",
+    "antigravity-cli",
+    "cline",
     "codex",
     "cursor",
+    "deepagents",
     "gemini-cli",
     "github-copilot",
-    "kimi-cli",
+    "kimi-code-cli",
     "opencode",
-    "antigravity",
-    "cline",
+    "warp",
+    "zed",
     "pi",
     "claude-code"
   ]
