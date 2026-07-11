@@ -23,7 +23,7 @@ The current interface is mise plus small shell scripts:
 ```sh
 mise run bootstrap         # install shell, Git, agent, and package configuration
 mise run doctor            # inspect the current installation without repairing it
-mise run sync              # fast-forward the public source checkout
+mise run sync              # fast-forward source, rematerialize runtime, run doctor
 mise run install:zsh
 mise run install:git
 mise run install:agents
@@ -43,6 +43,8 @@ Tracked files are public source. A real private `~/.gitconfig` loader includes t
 The ownership and migration rules are documented in [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md). Generated shared-agent state lives in a real `~/.agents/` directory outside the public checkout; first-party source remains linked and third-party material is restored from the immutable lock.
 
 Publication checks and the narrowly scoped override process are documented in [`docs/public-safety.md`](docs/public-safety.md).
+
+Sync modes and recovery behavior are documented in [`docs/sync.md`](docs/sync.md).
 
 ## Participants
 
