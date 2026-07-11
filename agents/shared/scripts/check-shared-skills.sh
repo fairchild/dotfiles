@@ -5,7 +5,7 @@ AGENTS_HOME="${AGENTS_HOME:-$HOME/.agents}"
 CANONICAL_SKILLS_DIR="$AGENTS_HOME/skills"
 PI_SKILLS_DIR="$HOME/.pi/agent/skills"
 CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
-CODEX_SKILLS_DIR="$HOME/.Codex/skills"
+CODEX_SKILLS_DIR="$HOME/.codex/skills"
 
 realpath_py() {
   python3 - "$1" <<'PY'
@@ -136,7 +136,8 @@ printf '\n'
 
 printf '### Hardcoded harness-path references inside canonical skills\n'
 if command -v rg >/dev/null 2>&1; then
-  if rg -n --hidden --glob '!**/.git/**' '~/(\.claude|\.Codex|\.pi/agent)/skills/' "$CANONICAL_SKILLS_DIR" >/tmp/shared-skill-path-audit.$$ 2>/dev/null; then
+  # shellcheck disable=SC2088 # The pattern intentionally searches for a literal tilde.
+  if rg -n --hidden --glob '!**/.git/**' '~/(\.claude|\.codex|\.pi/agent)/skills/' "$CANONICAL_SKILLS_DIR" >/tmp/shared-skill-path-audit.$$ 2>/dev/null; then
     head -n 80 /tmp/shared-skill-path-audit.$$
     total_lines="$(wc -l < /tmp/shared-skill-path-audit.$$ | tr -d ' ')"
     if [[ "$total_lines" -gt 80 ]]; then

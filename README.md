@@ -40,7 +40,7 @@ The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A
 
 Tracked files are public source. Private overlays such as `~/.gitconfig.local` and `~/.zshrc.local` are created outside Git and included by the public base configuration. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
 
-The remaining source/runtime boundary work—including moving mutable generated state out of the checkout—is specified in [#20](https://github.com/fairchild/dotfiles/issues/20). Until that lands, inspect `git status` before publishing changes.
+The ownership and migration rules are documented in [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md). Generated shared-agent state lives in a real `~/.agents/` directory outside the public checkout; first-party source remains linked and third-party material is restored from the immutable lock.
 
 Publication checks and the narrowly scoped override process are documented in [`docs/public-safety.md`](docs/public-safety.md).
 

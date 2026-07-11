@@ -26,6 +26,7 @@ fail() {
     ROADMAP.md
 		docs/policy.md
 		docs/public-safety.md
+		docs/source-runtime-contract.md
     install.sh
     install/pins.toml
 		scripts/check-public-contract.sh
@@ -37,6 +38,7 @@ fail() {
     scripts/install-zsh.sh
     scripts/restore-shared-skills.sh
 		scripts/test-install.sh
+		scripts/test-agent-runtime.sh
 		scripts/test-public-safety.sh
 	)
 
