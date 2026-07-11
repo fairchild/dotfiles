@@ -88,6 +88,10 @@ run = "./scripts/test-sync.sh"
 description = "Scan the tracked public tree with the pinned Gitleaks configuration"
 run = "gitleaks dir --no-banner --redact --config .gitleaks.toml ."
 
+[tasks."check:ci"]
+description = "Run the deterministic repository checks used by pull-request CI"
+run = "./scripts/check-ci.sh"
+
 [tasks.sync]
 description = "Fast-forward public source, rematerialize runtime, and run doctor"
 run = "./scripts/sync.sh"

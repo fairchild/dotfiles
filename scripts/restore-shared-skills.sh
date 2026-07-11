@@ -12,8 +12,8 @@ BACKUP_ROOT="${DOTFILES_MIGRATION_BACKUP_ROOT:-$HOME/.local/share/dotfiles/migra
 MODE="${1:-all}"
 
 case "$MODE" in
-	all|--first-party-only|--check) ;;
-	*) echo "usage: $0 [--first-party-only|--check]" >&2; exit 2 ;;
+	all|--first-party-only|--check|--check-first-party) ;;
+	*) echo "usage: $0 [--first-party-only|--check|--check-first-party]" >&2; exit 2 ;;
 esac
 
 for command_name in git jq patch; do
@@ -54,7 +54,7 @@ materialize_first_party() {
 			&& "$(realpath_py "$destination")" == "$(realpath_py "$expected")" ]]; then
 			continue
 		fi
-		if [[ "$MODE" == "--check" ]]; then
+		if [[ "$MODE" == "--check" || "$MODE" == "--check-first-party" ]]; then
 			echo "FAIL: first-party skill does not link to public source: $name" >&2
 			return 1
 		fi
@@ -144,13 +144,20 @@ restore_third_party() {
 
 materialize_first_party
 
-if [[ "$MODE" == "--check" ]]; then
-	check_third_party
-	echo "OK: generated skill runtime matches public sources and lock inventory"
-elif [[ "$MODE" == "--first-party-only" ]]; then
-	echo "OK: first-party skills linked into generated runtime"
-else
-	restore_third_party
-	check_third_party
-	echo "OK: first-party and pinned third-party skills materialized outside the checkout"
-fi
+case "$MODE" in
+	--check)
+		check_third_party
+		echo "OK: generated skill runtime matches public sources and lock inventory"
+		;;
+	--check-first-party)
+		echo "OK: generated first-party skill runtime matches public sources"
+		;;
+	--first-party-only)
+		echo "OK: first-party skills linked into generated runtime"
+		;;
+	all)
+		restore_third_party
+		check_third_party
+		echo "OK: first-party and pinned third-party skills materialized outside the checkout"
+		;;
+esac

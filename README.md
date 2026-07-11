@@ -33,6 +33,7 @@ mise run check:public      # verify public entrypoints and a fixture bootstrap
 mise run check:safety      # reject secrets, private runtime, and unsafe vendoring
 mise run check:completeness # reject omitted entrypoints and broken local references
 mise run test:safety       # exercise positive and negative safety fixtures
+mise run check:ci          # reproduce deterministic pull-request checks
 ```
 
 The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A smaller future orchestration surface is tracked in [#2](https://github.com/fairchild/dotfiles/issues/2); it is not required for the current release.
@@ -48,6 +49,8 @@ Publication checks and the narrowly scoped override process are documented in [`
 Whitelist omission checks and the intentional opt-in procedure are documented in [`docs/repository-completeness.md`](docs/repository-completeness.md).
 
 Sync modes and recovery behavior are documented in [`docs/sync.md`](docs/sync.md).
+
+Pull-request checks and their local reproduction commands are documented in [`docs/ci.md`](docs/ci.md).
 
 ## Participants
 

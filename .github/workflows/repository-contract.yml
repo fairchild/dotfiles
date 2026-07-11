@@ -1,0 +1,63 @@
+name: Repository contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/repository-contract.yml"
+      - ".gitignore"
+      - ".gitleaks.toml"
+      - ".mise.toml"
+      - "README.md"
+      - "ROADMAP.md"
+      - "install.sh"
+      - "install/**"
+      - "home/**"
+      - "agents/**"
+      - "docs/**"
+      - "scripts/**"
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/repository-contract.yml"
+      - ".gitignore"
+      - ".gitleaks.toml"
+      - ".mise.toml"
+      - "README.md"
+      - "ROADMAP.md"
+      - "install.sh"
+      - "install/**"
+      - "home/**"
+      - "agents/**"
+      - "docs/**"
+      - "scripts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install checksum-pinned mise
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(awk -F'"' '/^version/ {print $2; exit}' install/pins.toml)
+          sha=$(awk -v key='"linux-x64"' '$1 == key {gsub(/"/, "", $3); print $3; exit}' install/pins.toml)
+          target="$RUNNER_TEMP/mise"
+          curl -fsSL "https://github.com/jdx/mise/releases/download/$version/mise-$version-linux-x64" -o "$target"
+          echo "$sha  $target" | sha256sum -c -
+          chmod +x "$target"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          "$target" --version
+
+      - name: Run deterministic repository contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          mise trust "$GITHUB_WORKSPACE/.mise.toml"
+          mise run check:ci
