@@ -16,18 +16,18 @@
 #   - Windows binaries — out of scope for this umbrella.
 
 [mise]
-version = "v2026.5.5"
-released_at = "2026-05-10T11:07:35Z"
-release_url = "https://github.com/jdx/mise/releases/tag/v2026.5.5"
+version = "v2026.7.5"
+released_at = "2026-07-09T21:12:51Z"
+release_url = "https://github.com/jdx/mise/releases/tag/v2026.7.5"
 asset_url_template = "https://github.com/jdx/mise/releases/download/{version}/mise-{version}-{platform}"
-shasums_url = "https://github.com/jdx/mise/releases/download/v2026.5.5/SHASUMS256.asc"
+shasums_url = "https://github.com/jdx/mise/releases/download/v2026.7.5/SHASUMS256.asc"
 
 [mise.sha256]
 # Raw binary assets (no tar extraction needed at install time).
-"linux-x64"   = "3aaab5c05a8a94a93b42b4f581779bbd5c44ddb251e7f3639fc671ec5c6aab8a"
-"linux-arm64" = "084487717ba01adb233ceb26fa897532fc206476fd4bda97b147deb36e5b5148"
-"macos-x64"   = "0f9da9d79562866e9a910acaec2c25a2af8c4da8c126bcc8fa1dbbad0565a25b"
-"macos-arm64" = "5340b37f18f15a5f3a48fe11ee6b66a4963583ab49da1f9102de7a6878a16c03"
+"linux-x64"   = "5f7ab76afdf0780d12edeaa67e908094e9ccf7924cfe203e415c1cfb87bbf778"
+"linux-arm64" = "41fcf744050bfa27f9871e2151ac6f44b5ce2741424b3d5282b92becc71e6bc4"
+"macos-x64"   = "62fe1fe9dbc32c6ce1388ee23df4a0862d3d7f40a6820b40c2f1cbab995dc1d4"
+"macos-arm64" = "a456c65907e8334619d77fa152bdcf9023fddc0daa03d47fbe86d032dbf565b0"
 
 [mise.signing]
 # Release signing key for mise. NOT the same as the personal GPG keys at
