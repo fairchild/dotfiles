@@ -55,15 +55,6 @@
       "installedAt": "2026-02-23T06:02:28.694Z",
       "updatedAt": "2026-02-23T06:02:28.694Z"
     },
-    "simple-brainstorm": {
-      "source": "roin-orca/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/roin-orca/skills.git",
-      "skillPath": "skills/simple-brainstorm/SKILL.md",
-      "skillFolderHash": "04a9177318209f7225709468a811a1617711aaba",
-      "installedAt": "2026-03-02T07:27:47.753Z",
-      "updatedAt": "2026-03-02T07:27:47.753Z"
-    },
     "fun-brainstorming": {
       "source": "roin-orca/skills",
       "sourceType": "github",
