@@ -29,6 +29,8 @@ The shipped interface is deterministic: `mise run bootstrap`, `mise run doctor`,
 5. **Deterministic checks come first.** Hooks and required CI must not need an API key or model-backed agent.
 6. **Public source and private runtime have different ownership.** Tracked source is reviewable and shareable. Secrets, identity, logs, caches, generated output, and machine-local state stay outside tracked source.
 
+The concrete ownership table, symlink policy, and migration sequence live in [`source-runtime-contract.md`](source-runtime-contract.md).
+
 ## Participation levels
 
 - **T0:** any Git repository; generic source checks are possible.

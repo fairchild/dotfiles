@@ -17,8 +17,8 @@ Usage:
   link-shared-skills.sh [--dry-run|--apply] pi
 
 Examples:
-  link-shared-skills.sh claude code-review voice
-  link-shared-skills.sh --apply claude code-review voice
+  link-shared-skills.sh claude backlog vocal
+  link-shared-skills.sh --apply claude backlog vocal
   link-shared-skills.sh --apply --all codex
   link-shared-skills.sh pi
 
@@ -113,7 +113,7 @@ case "$TARGET" in
     DEST_DIR="$HOME/.claude/skills"
     ;;
   codex)
-    DEST_DIR="$HOME/.Codex/skills"
+    DEST_DIR="$HOME/.codex/skills"
     ;;
   pi)
     DEST_DIR="$HOME/.pi/agent/skills"

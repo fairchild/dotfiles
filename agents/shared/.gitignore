@@ -1,4 +1,5 @@
-# Runtime materialized from tracked first-party sources and the third-party lock.
+# Legacy runtime locations retained only so old installs cannot publish them.
+# Current generated runtime lives in ~/.agents/ outside the checkout.
 /skills/
 /runtime-backups/
 

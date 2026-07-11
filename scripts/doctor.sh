@@ -19,33 +19,68 @@ PY
 # --- ~/.zshrc symlink ---
 expected_zshrc="$DOTFILES_DIR/home/.zshrc"
 if [[ -L "$HOME/.zshrc" ]] && [[ "$(readlink "$HOME/.zshrc")" == "$expected_zshrc" ]]; then
-    ok "~/.zshrc → $expected_zshrc"
+    ok "$HOME/.zshrc -> $expected_zshrc"
 else
-    warn "~/.zshrc is not a symlink to the repo (run \`mise run install:zsh\`)"
+    warn "$HOME/.zshrc is not a symlink to the repo (run \`mise run install:zsh\`)"
 fi
 
 # --- ~/.gitconfig symlink ---
 expected_gitconfig="$DOTFILES_DIR/home/.gitconfig"
 if [[ -L "$HOME/.gitconfig" ]] && [[ "$(readlink "$HOME/.gitconfig")" == "$expected_gitconfig" ]]; then
-    ok "~/.gitconfig → $expected_gitconfig"
+    ok "$HOME/.gitconfig -> $expected_gitconfig"
 else
-    warn "~/.gitconfig is not a symlink to the repo (run \`mise run install:git\`)"
+    warn "$HOME/.gitconfig is not a symlink to the repo (run \`mise run install:git\`)"
 fi
 
-# --- ~/.agents symlink ---
-expected_agents="$DOTFILES_DIR/agents/shared"
-if [[ -L "$HOME/.agents" ]] && [[ "$(realpath_py "$HOME/.agents")" == "$(realpath_py "$expected_agents")" ]]; then
-    ok "~/.agents → $expected_agents"
+# --- generated agent runtime ---
+expected_agents="$HOME/.agents"
+if [[ -d "$expected_agents" && ! -L "$expected_agents" ]]; then
+    ok "$HOME/.agents is a real generated runtime directory"
 else
-    warn "~/.agents is not a symlink to the repo (run \`mise run install:agents\`)"
+    warn "$HOME/.agents is not a real generated runtime directory (run \`mise run install:agents\`)"
 fi
+
+for public_asset in prompts scripts; do
+    expected_source="$DOTFILES_DIR/agents/shared/$public_asset"
+    runtime_asset="$expected_agents/$public_asset"
+    if [[ -L "$runtime_asset" ]] && [[ "$(realpath_py "$runtime_asset")" == "$(realpath_py "$expected_source")" ]]; then
+        ok "$HOME/.agents/$public_asset links to public source"
+    else
+        warn "$HOME/.agents/$public_asset is not linked to public source"
+    fi
+done
+
+if [[ -d "$expected_agents/skills" && ! -L "$expected_agents/skills" ]]; then
+    skills_real="$(realpath_py "$expected_agents/skills")"
+    dotfiles_real="$(realpath_py "$DOTFILES_DIR")"
+    case "$skills_real" in
+        "$dotfiles_real"/*) fail "generated skill runtime is inside the public checkout: $skills_real" ;;
+        *) ok "generated skill runtime is outside the public checkout" ;;
+    esac
+else
+    warn "$HOME/.agents/skills is not a real generated runtime directory"
+fi
+
+for legacy_runtime in "$DOTFILES_DIR/agents/shared/skills" "$DOTFILES_DIR/agents/shared/runtime-backups"; do
+    if [[ -e "$legacy_runtime" || -L "$legacy_runtime" ]]; then
+        warn "legacy generated runtime remains inside checkout: $legacy_runtime"
+    fi
+done
+
+for local_overlay in "$HOME/.zshrc.local" "$HOME/.gitconfig.local"; do
+    if [[ -f "$local_overlay" && ! -L "$local_overlay" ]]; then
+        ok "$local_overlay is private local state"
+    else
+        warn "$local_overlay is missing or linked; private overlays must be real local files"
+    fi
+done
 
 # --- pi shared skills topology ---
 expected_pi_skills="$HOME/.agents/skills"
 if [[ -L "$HOME/.pi/agent/skills" ]] && [[ "$(readlink "$HOME/.pi/agent/skills")" == "$expected_pi_skills" ]]; then
-    ok "~/.pi/agent/skills → ~/.agents/skills"
+    ok "$HOME/.pi/agent/skills -> $HOME/.agents/skills"
 else
-    warn "~/.pi/agent/skills is not a symlink to ~/.agents/skills (run \`mise run install:agents\`)"
+    warn "$HOME/.pi/agent/skills is not a symlink to $HOME/.agents/skills (run \`mise run install:agents\`)"
 fi
 
 # --- materialized shared skill inventory ---

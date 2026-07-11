@@ -3,79 +3,86 @@
 set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
-AGENTS_ROOT="$DOTFILES_DIR/agents/shared"
-FIRST_PARTY_DIR="$AGENTS_ROOT/first-party-skills"
-RUNTIME_DIR="$AGENTS_ROOT/skills"
-LOCK_FILE="$AGENTS_ROOT/third-party-skills.lock.json"
+SOURCE_ROOT="$DOTFILES_DIR/agents/shared"
+FIRST_PARTY_DIR="$SOURCE_ROOT/first-party-skills"
+AGENTS_HOME="${DOTFILES_AGENTS_HOME:-${AGENTS_HOME:-$HOME/.agents}}"
+RUNTIME_DIR="$AGENTS_HOME/skills"
+LOCK_FILE="$SOURCE_ROOT/third-party-skills.lock.json"
+BACKUP_ROOT="${DOTFILES_MIGRATION_BACKUP_ROOT:-$HOME/.local/share/dotfiles/migration-backups}/skills"
 MODE="${1:-all}"
 
 case "$MODE" in
 	all|--first-party-only|--check) ;;
-	*)
-		echo "usage: $0 [--first-party-only|--check]" >&2
-		exit 2
-		;;
+	*) echo "usage: $0 [--first-party-only|--check]" >&2; exit 2 ;;
 esac
 
 for command_name in git jq patch; do
-	if ! command -v "$command_name" >/dev/null 2>&1; then
-		echo "FAIL: required command not found: $command_name" >&2
-		exit 1
-	fi
+	command -v "$command_name" >/dev/null 2>&1 \
+		|| { echo "FAIL: required command not found: $command_name" >&2; exit 1; }
 done
 
 if [[ ! -d "$FIRST_PARTY_DIR" || ! -f "$LOCK_FILE" ]]; then
-	echo "FAIL: shared skill sources or lockfile missing under $AGENTS_ROOT" >&2
+	echo "FAIL: shared skill sources or lockfile missing under $SOURCE_ROOT" >&2
 	exit 1
 fi
 
 mkdir -p "$RUNTIME_DIR"
 
+backup_destination() {
+	local destination="$1" name="$2" backup
+	mkdir -p "$BACKUP_ROOT"
+	backup="$BACKUP_ROOT/${name}-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+	mv "$destination" "$backup"
+	echo "BACKED UP: unmanaged $destination -> $backup"
+}
+
 materialize_first_party() {
-	local source name destination expected backup_root backup
-	backup_root="$AGENTS_ROOT/runtime-backups"
+	local source name destination expected
 	while IFS= read -r source; do
 		name="$(basename "$source")"
 		destination="$RUNTIME_DIR/$name"
-		expected="../first-party-skills/$name"
+		expected="$FIRST_PARTY_DIR/$name"
 
-		if [[ -L "$destination" ]]; then
-			if [[ "$(readlink "$destination")" == "$expected" ]]; then
-				continue
-			fi
-			if [[ "$MODE" == "--check" ]]; then
-				echo "FAIL: $destination points to $(readlink "$destination"), expected $expected" >&2
-				return 1
-			fi
-			ln -sfn "$expected" "$destination"
-		elif [[ -e "$destination" ]]; then
-			if [[ "$MODE" == "--check" ]]; then
-				echo "FAIL: first-party destination is a legacy real path: $destination" >&2
-				return 1
-			fi
-			mkdir -p "$backup_root"
-			backup="$backup_root/$name-$(date -u +%Y%m%dT%H%M%SZ)"
-			mv "$destination" "$backup"
-			echo "BACKED UP: legacy $name runtime -> $backup"
-			ln -s "$expected" "$destination"
-		elif [[ "$MODE" == "--check" ]]; then
-			echo "FAIL: first-party skill is not materialized: $name" >&2
-			return 1
-		else
-			ln -s "$expected" "$destination"
+		if [[ -L "$destination" && "$(readlink "$destination")" == "$expected" ]]; then
+			continue
 		fi
+		if [[ "$MODE" == "--check" ]]; then
+			echo "FAIL: first-party skill does not link to public source: $name" >&2
+			return 1
+		fi
+		if [[ -e "$destination" || -L "$destination" ]]; then
+			backup_destination "$destination" "$name"
+		fi
+		ln -s "$expected" "$destination"
 	done < <(find "$FIRST_PARTY_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
 }
 
 check_third_party() {
-	local missing=0 name install_name
-	while IFS=$'\t' read -r name install_name; do
-		if [[ ! -f "$RUNTIME_DIR/$install_name/SKILL.md" ]]; then
-			echo "FAIL: third-party skill is not materialized: $install_name ($name)" >&2
+	local missing=0 name install_name ref tree marker
+	while IFS=$'\t' read -r name install_name ref tree; do
+		marker="$RUNTIME_DIR/$install_name/.dotfiles-managed.json"
+		if [[ ! -f "$RUNTIME_DIR/$install_name/SKILL.md" || ! -f "$marker" ]]; then
+			echo "FAIL: third-party skill is not managed: $install_name ($name)" >&2
 			missing=1
+			continue
 		fi
-	done < <(jq -r '.skills | to_entries[] | [.key, (.value.installName // .key)] | @tsv' "$LOCK_FILE")
+		jq -e --arg name "$name" --arg ref "$ref" --arg tree "$tree" \
+			'.name == $name and .ref == $ref and .gitTree == $tree' "$marker" >/dev/null \
+			|| { echo "FAIL: third-party marker drift: $install_name" >&2; missing=1; }
+	done < <(jq -r '.skills | to_entries[] | [.key, (.value.installName // .key), .value.ref, .value.gitTree] | @tsv' "$LOCK_FILE")
 	return "$missing"
+}
+
+prepare_third_party_destination() {
+	local destination="$1" name="$2" marker="$1/.dotfiles-managed.json"
+	if [[ ! -e "$destination" && ! -L "$destination" ]]; then
+		return
+	fi
+	if [[ -f "$marker" ]] && jq -e --arg name "$name" '.name == $name' "$marker" >/dev/null 2>&1; then
+		rm -rf "$destination"
+	else
+		backup_destination "$destination" "$name"
+	fi
 }
 
 restore_third_party() {
@@ -104,18 +111,21 @@ restore_third_party() {
 		actual_tree="$(git -C "$checkout" rev-parse "HEAD:$skill_dir")"
 		if [[ "$actual_tree" != "$expected_tree" ]]; then
 			echo "FAIL: upstream tree mismatch for $name" >&2
-			echo "	expected: $expected_tree" >&2
-			echo "	actual:	  $actual_tree" >&2
+			printf '\texpected: %s\n' "$expected_tree" >&2
+			printf '\tactual:   %s\n' "$actual_tree" >&2
 			exit 1
 		fi
 
 		destination="$RUNTIME_DIR/$install_name"
-		rm -rf "$destination"
+		prepare_third_party_destination "$destination" "$name"
 		mkdir -p "$destination"
 		cp -R "$checkout/$skill_dir/." "$destination/"
 		if [[ -n "$patch_file" ]]; then
-			patch -s -d "$destination" -p1 < "$AGENTS_ROOT/$patch_file"
+			patch -s -d "$destination" -p1 < "$SOURCE_ROOT/$patch_file"
 		fi
+		jq -n --arg name "$name" --arg sourceUrl "$source_url" --arg ref "$ref" --arg gitTree "$expected_tree" \
+			'{name: $name, sourceUrl: $sourceUrl, ref: $ref, gitTree: $gitTree}' \
+			> "$destination/.dotfiles-managed.json"
 		echo "RESTORED: $install_name from ${source_url#https://github.com/}@$ref"
 	done < <(
 		jq -r '.skills | to_entries | sort_by(.value.sourceUrl, .value.ref, .key)[] |
@@ -128,11 +138,11 @@ materialize_first_party
 
 if [[ "$MODE" == "--check" ]]; then
 	check_third_party
-	echo "OK: shared skill runtime matches tracked sources and lock inventory"
+	echo "OK: generated skill runtime matches public sources and lock inventory"
 elif [[ "$MODE" == "--first-party-only" ]]; then
-	echo "OK: first-party skills materialized"
+	echo "OK: first-party skills linked into generated runtime"
 else
 	restore_third_party
 	check_third_party
-	echo "OK: first-party and pinned third-party skills materialized"
+	echo "OK: first-party and pinned third-party skills materialized outside the checkout"
 fi

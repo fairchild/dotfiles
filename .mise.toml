@@ -29,7 +29,7 @@ description = "Symlink home/.gitconfig into $HOME; migrate [user] to ~/.gitconfi
 run = "./scripts/install-git.sh"
 
 [tasks."install:agents"]
-description = "Symlink ~/.agents and materialize first- and third-party skills"
+description = "Create generated ~/.agents runtime from public sources and pinned third parties"
 run = "./scripts/install-agents.sh"
 
 [tasks."install:skills"]
@@ -59,6 +59,10 @@ run = "./scripts/check-public-safety.sh"
 [tasks."test:safety"]
 description = "Exercise public-safety gates with positive and negative fixtures"
 run = "./scripts/test-public-safety.sh"
+
+[tasks."test:agent-runtime"]
+description = "Exercise non-destructive agent runtime migration in an isolated HOME"
+run = "./scripts/test-agent-runtime.sh"
 
 [tasks."check:gitleaks"]
 description = "Scan the tracked public tree with the pinned Gitleaks configuration"
