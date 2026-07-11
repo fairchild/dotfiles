@@ -56,9 +56,17 @@ run = "./scripts/check-public-contract.sh --network"
 description = "Reject secrets, private runtime, and unmanaged third-party material"
 run = "./scripts/check-public-safety.sh"
 
+[tasks."check:completeness"]
+description = "Verify required public paths and local references are tracked"
+run = "./scripts/check-repository-completeness.sh"
+
 [tasks."test:safety"]
 description = "Exercise public-safety gates with positive and negative fixtures"
 run = "./scripts/test-public-safety.sh"
+
+[tasks."test:completeness"]
+description = "Reproduce whitelist omission and broken-reference failures"
+run = "./scripts/test-repository-completeness.sh"
 
 [tasks."test:agent-runtime"]
 description = "Exercise non-destructive agent runtime migration in an isolated HOME"

@@ -1,0 +1,35 @@
+# path|why it must be present and tracked
+.gitignore|Whitelist publication policy
+.gitleaks.toml|Secret-scanner configuration
+.mise.toml|Canonical task interface
+LICENSE|Public reuse terms
+README.md|Public entrypoint
+ROADMAP.md|Current intent and work order
+install.sh|Copy-paste bootstrap entrypoint
+install/pins.toml|Verified external tool pins
+.github/workflows/public-safety.yml|Required publication gate
+.github/workflows/update-mise-pin.yml|Verified pin updater
+docs/policy.md|Repository invariants
+docs/public-safety.md|Publication gate documentation
+docs/repository-completeness.md|Whitelist completeness documentation
+docs/source-runtime-contract.md|Ownership and migration contract
+docs/sync.md|Sync convergence contract
+agents/shared/README.md|Shared agent source topology
+agents/shared/third-party-skills.lock.json|Immutable third-party provenance
+scripts/check-public-contract.sh|Public bootstrap contract check
+scripts/check-public-safety.sh|Repository-specific publication safety
+scripts/check-repository-completeness.sh|Tracked entrypoint and reference check
+scripts/doctor.sh|Installed-state health check
+scripts/install-agents.sh|Generated agent runtime installer
+scripts/install-git.sh|Private Git loader installer
+scripts/install-zsh.sh|Public shell base installer
+scripts/public-entrypoints.txt|Explicit load-bearing path contract
+scripts/public-safety-allowlist.txt|Narrow publication-check exceptions
+scripts/restore-shared-skills.sh|Pinned skill materializer
+scripts/sync.sh|Source and runtime convergence
+scripts/test-agent-runtime.sh|Agent migration fixtures
+scripts/test-git-runtime.sh|Git write-boundary fixtures
+scripts/test-install.sh|Bootstrap fixtures
+scripts/test-public-safety.sh|Publication safety fixtures
+scripts/test-repository-completeness.sh|Whitelist completeness fixtures
+scripts/test-sync.sh|Sync convergence fixtures

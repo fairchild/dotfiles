@@ -31,6 +31,7 @@ mise run install:skills
 mise run install:brew
 mise run check:public      # verify public entrypoints and a fixture bootstrap
 mise run check:safety      # reject secrets, private runtime, and unsafe vendoring
+mise run check:completeness # reject omitted entrypoints and broken local references
 mise run test:safety       # exercise positive and negative safety fixtures
 ```
 
@@ -43,6 +44,8 @@ Tracked files are public source. A real private `~/.gitconfig` loader includes t
 The ownership and migration rules are documented in [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md). Generated shared-agent state lives in a real `~/.agents/` directory outside the public checkout; first-party source remains linked and third-party material is restored from the immutable lock.
 
 Publication checks and the narrowly scoped override process are documented in [`docs/public-safety.md`](docs/public-safety.md).
+
+Whitelist omission checks and the intentional opt-in procedure are documented in [`docs/repository-completeness.md`](docs/repository-completeness.md).
 
 Sync modes and recovery behavior are documented in [`docs/sync.md`](docs/sync.md).
 
