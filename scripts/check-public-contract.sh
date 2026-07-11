@@ -39,6 +39,7 @@ fail() {
     scripts/restore-shared-skills.sh
 		scripts/test-install.sh
 		scripts/test-agent-runtime.sh
+		scripts/test-git-runtime.sh
 		scripts/test-public-safety.sh
 	)
 

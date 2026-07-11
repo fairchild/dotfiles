@@ -1,10 +1,10 @@
-# ~/.gitconfig (deployed via `mise run install:git` — symlinks $HOME/.gitconfig
-# to this file).
+# Public Git base included by the private ~/.gitconfig loader created by
+# `mise run install:git`. Git never writes to this tracked file directly.
 #
 # Public-safe portion only. Identity (name, email), per-machine signing keys,
 # work-only includes, and other private-by-context settings live in
-# ~/.gitconfig.local — copy from home/.gitconfig.local.example. The
-# [include] block at the bottom of this file pulls that in conditionally.
+# ~/.gitconfig.local — copy from home/.gitconfig.local.example. The private
+# loader includes this public base first and the local overlay last.
 
 [alias]
 	# Working-tree shortcuts.
@@ -118,9 +118,3 @@
 
 [url "git://gist.github.com/"]
 	insteadOf = "gist:"
-
-# Pull in machine-specific [user], signing keys, work includes, etc.
-# This must be the last section so locally-defined values override anything
-# above when keys conflict.
-[include]
-	path = ~/.gitconfig.local

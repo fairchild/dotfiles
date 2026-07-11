@@ -38,7 +38,7 @@ The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A
 
 ## Source and runtime
 
-Tracked files are public source. Private overlays such as `~/.gitconfig.local` and `~/.zshrc.local` are created outside Git and included by the public base configuration. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
+Tracked files are public source. A real private `~/.gitconfig` loader includes the public Git base and `~/.gitconfig.local`, while the linked public zsh base includes `~/.zshrc.local`. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
 
 The ownership and migration rules are documented in [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md). Generated shared-agent state lives in a real `~/.agents/` directory outside the public checkout; first-party source remains linked and third-party material is restored from the immutable lock.
 

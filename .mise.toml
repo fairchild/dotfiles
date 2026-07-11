@@ -25,7 +25,7 @@ description = "Symlink home/.zshrc into $HOME with backup; seed ~/.zshrc.local"
 run = "./scripts/install-zsh.sh"
 
 [tasks."install:git"]
-description = "Symlink home/.gitconfig into $HOME; migrate [user] to ~/.gitconfig.local"
+description = "Create private ~/.gitconfig loader for public base and local overlay"
 run = "./scripts/install-git.sh"
 
 [tasks."install:agents"]
@@ -63,6 +63,10 @@ run = "./scripts/test-public-safety.sh"
 [tasks."test:agent-runtime"]
 description = "Exercise non-destructive agent runtime migration in an isolated HOME"
 run = "./scripts/test-agent-runtime.sh"
+
+[tasks."test:git-runtime"]
+description = "Prove global Git writes cannot mutate tracked public source"
+run = "./scripts/test-git-runtime.sh"
 
 [tasks."check:gitleaks"]
 description = "Scan the tracked public tree with the pinned Gitleaks configuration"

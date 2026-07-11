@@ -24,12 +24,27 @@ else
     warn "$HOME/.zshrc is not a symlink to the repo (run \`mise run install:zsh\`)"
 fi
 
-# --- ~/.gitconfig symlink ---
+# --- private ~/.gitconfig loader ---
 expected_gitconfig="$DOTFILES_DIR/home/.gitconfig"
-if [[ -L "$HOME/.gitconfig" ]] && [[ "$(readlink "$HOME/.gitconfig")" == "$expected_gitconfig" ]]; then
-    ok "$HOME/.gitconfig -> $expected_gitconfig"
+if [[ -f "$HOME/.gitconfig" && ! -L "$HOME/.gitconfig" ]]; then
+    ok "$HOME/.gitconfig is a private mutable loader"
 else
-    warn "$HOME/.gitconfig is not a symlink to the repo (run \`mise run install:git\`)"
+    fail "$HOME/.gitconfig is missing or linked into public source (run \`mise run install:git\`)"
+fi
+
+public_include_count="$(git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null | grep -Fxc "$expected_gitconfig" || true)"
+local_include_count="$(git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null | grep -Fxc "$HOME/.gitconfig.local" || true)"
+if [[ "$public_include_count" == "1" && "$local_include_count" == "1" ]]; then
+    ok "private Git loader includes public base and local overlay exactly once"
+else
+    fail "private Git loader include topology is incomplete or duplicated"
+fi
+
+if git -C "$DOTFILES_DIR" diff --quiet -- home/.gitconfig \
+    && git -C "$DOTFILES_DIR" diff --cached --quiet -- home/.gitconfig; then
+    ok "public Git base has no local write-through changes"
+else
+    fail "public Git base changed locally; inspect before publishing"
 fi
 
 # --- generated agent runtime ---
@@ -91,9 +106,7 @@ else
 fi
 
 # --- git identity present ---
-# Use plain `git config` (no --global) so [include]ed files like
-# ~/.gitconfig.local are followed. `git config --global --list` only reads
-# the literal $HOME/.gitconfig file and won't surface included entries.
+# Plain `git config` follows the private loader's public and local includes.
 git_email="$(git config user.email 2>/dev/null || true)"
 git_name="$(git config user.name 2>/dev/null || true)"
 if [[ -n "$git_email" && -n "$git_name" ]]; then
