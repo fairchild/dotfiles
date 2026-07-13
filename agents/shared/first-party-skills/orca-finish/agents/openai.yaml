@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orca Finish"
+  short_description: "Certify an Orca worktree for closeout"
+  default_prompt: "Use $orca-finish to check whether this worktree is ready to close without deleting it."
