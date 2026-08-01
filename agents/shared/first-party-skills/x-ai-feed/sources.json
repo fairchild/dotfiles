@@ -1,0 +1,23 @@
+{
+  "_comment": "Curated X handles for the x-ai-feed skill. Edit freely — add/remove handles, rename categories. Each scrape costs one Firecrawl credit per handle per run, so size this list to your credit budget and run cadence.",
+  "categories": ["Labs", "Research & Voices", "Agents & Tooling", "Builders"],
+  "sources": [
+    { "handle": "AnthropicAI", "category": "Labs" },
+    { "handle": "OpenAI", "category": "Labs" },
+    { "handle": "GoogleDeepMind", "category": "Labs" },
+    { "handle": "karpathy", "category": "Research & Voices" },
+    { "handle": "ylecun", "category": "Research & Voices" },
+    { "handle": "DrJimFan", "category": "Research & Voices" },
+    { "handle": "AndrewYNg", "category": "Research & Voices" },
+    { "handle": "sama", "category": "Research & Voices" },
+    { "handle": "simonw", "category": "Research & Voices" },
+    { "handle": "swyx", "category": "Research & Voices" },
+    { "handle": "_akhaliq", "category": "Research & Voices" },
+    { "handle": "huggingface", "category": "Research & Voices" },
+    { "handle": "cognition", "category": "Agents & Tooling" },
+    { "handle": "cursor_ai", "category": "Agents & Tooling" },
+    { "handle": "OpenRouter", "category": "Agents & Tooling" },
+    { "handle": "Teknium", "category": "Builders" },
+    { "handle": "steipete", "category": "Builders" }
+  ]
+}
