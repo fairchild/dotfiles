@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
 """Fail-closed readiness certification for a local Orca-managed worktree."""
 
 from __future__ import annotations
@@ -176,8 +180,13 @@ def validate_adapter(adapter: dict[str, Any]) -> None:
     if adapter.get("schema_version") != SCHEMA or not adapter.get("name"):
         raise Blocked("missing or invalid repository adapter")
     completion = adapter.get("required_completion_checks")
+    pr_checks = adapter.get("required_pr_checks")
     deletion = adapter.get("required_deletion_readiness_checks", [])
     deployment = adapter.get("deployment")
+    if not isinstance(pr_checks, list) or not pr_checks or not all(isinstance(name, str) and name for name in pr_checks):
+        raise Blocked("adapter supplies no required PR checks")
+    if len(set(pr_checks)) != len(pr_checks):
+        raise Blocked("adapter required PR checks contain duplicates")
     if not isinstance(completion, list) or not completion or not all(isinstance(name, str) and name for name in completion):
         raise Blocked("adapter supplies no completion checks")
     if not isinstance(deletion, list) or not all(isinstance(name, str) and name for name in deletion) or not isinstance(deployment, dict) or not isinstance(deployment.get("required"), bool):
@@ -197,7 +206,7 @@ def validate_bound_evidence(payload: dict[str, Any], bindings: dict[str, str], l
         raise Blocked(f"{label} evidence is stale or future-dated")
 
 
-def validate_pr(payload: dict[str, Any], bindings: dict[str, str], canonical: Path) -> dict[str, Any]:
+def validate_pr(payload: dict[str, Any], bindings: dict[str, str], canonical: Path, required_names: list[str]) -> dict[str, Any]:
     required = ("provider", "repository", "pr", "base_branch", "state", "head_sha", "merge_sha", "required_checks", "review_decision", "unresolved_threads", "observed_at")
     if any(key not in payload for key in required):
         raise Blocked("PR evidence is missing required fields")
@@ -207,12 +216,20 @@ def validate_pr(payload: dict[str, Any], bindings: dict[str, str], canonical: Pa
         raise Blocked("PR head and merge SHAs must be exact lowercase 40-hex values")
     if payload["state"] != "merged" or payload["review_decision"] not in {"approved", "not_required"} or payload["unresolved_threads"] != 0:
         raise Blocked("PR is not proven merged with acceptable review")
-    if not isinstance(checks, list) or not checks or any(not isinstance(item, dict) or item.get("status") != "success" or not item.get("name") for item in checks):
-        raise Blocked("named required checks are missing or not successful")
+    if not isinstance(checks, list) or any(not isinstance(item, dict) or not isinstance(item.get("name"), str) for item in checks):
+        raise Blocked("PR checks are invalid")
+    by_name = {item["name"]: item for item in checks}
+    if len(by_name) != len(checks):
+        raise Blocked("PR checks contain duplicate names")
+    for name in required_names:
+        if by_name.get(name, {}).get("status") != "success":
+            raise Blocked(f"required PR check is missing or unsuccessful: {name}")
     if run(["git", "merge-base", "--is-ancestor", payload["merge_sha"], f"origin/{payload['base_branch']}"], cwd=canonical, check=False).returncode:
         raise Blocked("merge SHA is not contained by the remote default branch")
+    if run(["git", "merge-base", "--is-ancestor", payload["head_sha"], payload["merge_sha"]], cwd=canonical, check=False).returncode:
+        raise Blocked("PR merge SHA does not contain the exact feature head")
     sanitized = {key: payload[key] for key in required if key != "required_checks"}
-    sanitized["required_checks"] = [{"name": item["name"], "status": "success"} for item in checks]
+    sanitized["required_checks"] = [{"name": name, "status": "success"} for name in required_names]
     return sanitized
 
 
@@ -270,7 +287,7 @@ def inspect(args: argparse.Namespace, prepare: bool) -> dict[str, Any]:
     adapter_bytes = Path(args.adapter).read_bytes()
     adapter = load_json_bytes(adapter_bytes, str(args.adapter))
     validate_adapter(adapter)
-    pr = validate_pr(load_json(Path(args.pr_evidence)), bindings, canonical)
+    pr = validate_pr(load_json(Path(args.pr_evidence)), bindings, canonical, adapter["required_pr_checks"])
     completion_checks = validate_check_evidence(load_json(Path(args.completion_evidence)), bindings, adapter["required_completion_checks"], "completion")
     deletion_checks = []
     if adapter["deployment"]["required"]:

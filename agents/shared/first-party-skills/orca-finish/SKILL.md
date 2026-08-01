@@ -1,13 +1,13 @@
 ---
 name: orca-finish
 description: >-
-  Methodically check and certify whether the current Orca-managed worktree is
-  ready for manual closeout. Use for explicit $orca-finish invocations and
-  requests such as "done", "finish this worktree", "close this worktree",
-  "are we done?", or "is this safe to delete?". This V1 is readiness-only: it
-  never closes resources, removes a worktree, or deletes branches. Treat status
-  questions as strictly read-only and require explicit authorization before
-  running completion checks or writing a receipt.
+  Check and certify whether an explicitly identified Orca-managed worktree is
+  ready for manual closeout. Use for $orca-finish invocations or requests such
+  as "finish this Orca worktree", "close this Orca worktree", or "is this Orca
+  worktree safe to delete?". Do not trigger on generic "done" or status
+  questions without explicit Orca/worktree closeout context. This V1 is
+  readiness-only and never closes resources, removes a worktree, or deletes
+  branches.
 ---
 
 # Orca Finish
@@ -17,11 +17,12 @@ readiness; it never performs teardown.
 
 ## Choose the mode
 
-- For a question such as `are we done?`, run `scripts/orca_finish.py check`.
-  This is intrinsically read-only and never runs repository adapter commands.
+- For an explicit Orca closeout question such as `is this worktree ready?`, run
+  `scripts/orca_finish.py check`. This is intrinsically read-only and never runs
+  repository adapter commands.
 - For `finish`, `close`, or `remove this worktree`, state the exact target and
-  run `prepare` only after explicit authorization. Prepare may fetch remotes and
-  run declared repository checks, then writes an external receipt.
+  run `prepare` only after explicit authorization. Prepare may fetch remotes,
+  validate supplied repository evidence, then write an external receipt.
 - Treat `archive` as ambiguous because the public CLI has no reversible archive
   operation.
 
@@ -37,7 +38,7 @@ readiness; it never performs teardown.
 4. For authorized certification, run:
 
 ```sh
-python3 scripts/orca_finish.py prepare \
+~/.agents/skills/orca-finish/scripts/orca_finish.py prepare \
   --target "$PWD" \
   --canonical-main /absolute/path/to/canonical-checkout \
   --receipt-dir "$HOME/.local/state/orca-finish" \
@@ -72,6 +73,8 @@ command as an automatic next step.
 - Reject remote Orca environments and credential-bearing origin URLs.
 - Require fresh, exact repository, target, Orca, PR, CI, review, merge, and
   deployment bindings.
+- Require an ancestry-preserving merge that contains the exact feature head;
+  squash and rebase merges fail closed in V1.
 - Store only command digests and sanitized evidence metadata, never raw command
   output, credentials, private payloads, or command environments.
 - Write receipts atomically outside target and canonical worktrees.

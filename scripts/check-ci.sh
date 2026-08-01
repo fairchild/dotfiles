@@ -17,6 +17,7 @@ run_check "repository completeness fixtures" "$ROOT/scripts/test-repository-comp
 run_check "agent runtime fixtures" "$ROOT/scripts/test-agent-runtime.sh"
 run_check "x-ai-feed fixtures" python3 "$ROOT/agents/shared/first-party-skills/x-ai-feed/tests/test_feed.py"
 run_check "Git write-boundary fixtures" "$ROOT/scripts/test-git-runtime.sh"
+run_check "orca-finish fixtures" python3 "$ROOT/agents/shared/first-party-skills/orca-finish/scripts/test_orca_finish.py"
 run_check "sync convergence fixtures" "$ROOT/scripts/test-sync.sh"
 run_check "isolated doctor contract" "$ROOT/scripts/test-ci-doctor.sh"
 

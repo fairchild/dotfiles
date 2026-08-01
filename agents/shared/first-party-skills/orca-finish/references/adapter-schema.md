@@ -10,6 +10,7 @@ files, then asks the script to certify those files against declarative policy.
 {
   "schema_version": 3,
   "name": "dotfiles",
+  "required_pr_checks": ["repository-contract", "public-safety"],
   "required_completion_checks": ["tests", "public-safety"],
   "required_deletion_readiness_checks": [],
   "deployment": {"required": false, "reason": "setup-only change"}
@@ -64,6 +65,14 @@ required. The certification receipt binds the adapter SHA-256.
   ]
 }
 ```
+
+The certifier requires every adapter-declared PR check by exact name. Additional
+checks in the evidence do not substitute for a missing required check.
+
+V1 supports ancestry-preserving merges only: `head_sha` must be an ancestor of
+`merge_sha`, and `merge_sha` must be contained by the remote default branch.
+Squash and rebase merges block because this evidence contract cannot prove them
+independently.
 
 Supply completion evidence for both modes. Supply deployment evidence only
 when policy requires it. Unknown, missing, unsuccessful, older than 15 minutes,

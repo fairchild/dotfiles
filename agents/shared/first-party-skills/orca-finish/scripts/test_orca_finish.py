@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
 """Disposable tests for readiness-only orca_finish.py."""
 
 import datetime as dt
@@ -7,6 +11,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -45,7 +50,7 @@ class FinishTest(unittest.TestCase):
         self.write_evidence()
         self.write_completion_evidence()
         self.adapter = self.tmp / "adapter.json"
-        self.adapter.write_text(json.dumps({"schema_version": 3, "name": "fixture", "required_completion_checks": ["base"], "required_deletion_readiness_checks": [], "deployment": {"required": False}}))
+        self.adapter.write_text(json.dumps({"schema_version": 3, "name": "fixture", "required_pr_checks": ["test"], "required_completion_checks": ["base"], "required_deletion_readiness_checks": [], "deployment": {"required": False}}))
 
     def tearDown(self): shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -63,7 +68,7 @@ class FinishTest(unittest.TestCase):
         payload.update(changes)
         self.completion = self.tmp / "completion.json"; self.completion.write_text(json.dumps(payload))
 
-    def args(self, mode): return [str(SCRIPT), mode, "--target", str(self.target), "--canonical-main", str(self.main), "--adapter", str(self.adapter), "--pr-evidence", str(self.evidence), "--completion-evidence", str(self.completion), "--orca", str(self.fake)]
+    def args(self, mode): return [sys.executable, str(SCRIPT), mode, "--target", str(self.target), "--canonical-main", str(self.main), "--adapter", str(self.adapter), "--pr-evidence", str(self.evidence), "--completion-evidence", str(self.completion), "--orca", str(self.fake)]
 
     def test_check_is_read_only(self):
         result = run(self.args("check"), env=self.env()); self.assertTrue(json.loads(result.stdout)["ready"])
@@ -97,6 +102,18 @@ class FinishTest(unittest.TestCase):
         self.write_evidence(); (self.target / "later").write_text("later\n"); run(["git", "add", "later"], self.target); run(["git", "commit", "-m", "unpushed"], self.target)
         state = json.loads(self.state.read_text()); state["head"] = run(["git", "rev-parse", "HEAD"], self.target).stdout.strip(); self.state.write_text(json.dumps(state))
         self.assertIn("not exactly pushed", run(self.args("check"), env=self.env(), ok=False).stdout)
+
+    def test_pushed_but_unmerged_head_blocks(self):
+        (self.target / "later").write_text("later\n")
+        run(["git", "add", "later"], self.target); run(["git", "commit", "-m", "later"], self.target); run(["git", "push", "origin", "feature"], self.target)
+        self.feature = run(["git", "rev-parse", "HEAD"], self.target).stdout.strip()
+        state = json.loads(self.state.read_text()); state["head"] = self.feature; self.state.write_text(json.dumps(state))
+        self.write_evidence(); self.write_completion_evidence()
+        self.assertIn("does not contain", run(self.args("check"), env=self.env(), ok=False).stdout)
+
+    def test_adapter_required_pr_check_blocks(self):
+        self.adapter.write_text(json.dumps({"schema_version": 3, "name": "fixture", "required_pr_checks": ["required-ci"], "required_completion_checks": ["base"], "required_deletion_readiness_checks": [], "deployment": {"required": False}}))
+        self.assertIn("required-ci", run(self.args("check"), env=self.env(), ok=False).stdout)
 
     def test_receipt_cannot_live_in_a_worktree(self):
         result = run(self.args("prepare") + ["--receipt-dir", str(self.main / "receipts"), "--authorize", "finish"], env=self.env(), ok=False)
