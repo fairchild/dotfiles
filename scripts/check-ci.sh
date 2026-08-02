@@ -26,6 +26,7 @@ else
 fi
 run_check "mise pin updater fixtures" "${python311[@]}" "$ROOT/scripts/test-update-mise-pin.py"
 run_check "Git write-boundary fixtures" "$ROOT/scripts/test-git-runtime.sh"
+run_check "orca-finish fixtures" python3 "$ROOT/agents/shared/first-party-skills/orca-finish/scripts/test_orca_finish.py"
 run_check "sync convergence fixtures" "$ROOT/scripts/test-sync.sh"
 run_check "isolated doctor contract" "$ROOT/scripts/test-ci-doctor.sh"
 
