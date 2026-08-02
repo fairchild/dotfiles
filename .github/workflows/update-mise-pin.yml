@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -122,23 +123,17 @@ jobs:
             [ -n "$v" ] || { echo "::error::missing SHA"; exit 2; }
           done
 
-          python3 - <<'PY'
-          import os, re, pathlib
-          p = pathlib.Path("install/pins.toml")
-          src = p.read_text()
-          v   = os.environ["NEW_VERSION"]
-          ts  = os.environ["RELEASED_AT"]
-          src = re.sub(r'(?m)^version\s*=.*$',     f'version = "{v}"',     src)
-          src = re.sub(r'(?m)^released_at\s*=.*$', f'released_at = "{ts}"', src)
-          src = re.sub(r'(?m)^release_url\s*=.*$', f'release_url = "https://github.com/jdx/mise/releases/tag/{v}"', src)
-          src = re.sub(r'(?m)^shasums_url\s*=.*$', f'shasums_url = "https://github.com/jdx/mise/releases/download/{v}/SHASUMS256.asc"', src)
-          src = re.sub(r'(?m)^("linux-x64"\s*=\s*).*$',   r'\1"' + os.environ["LINUX_X64"]   + '"', src)
-          src = re.sub(r'(?m)^("linux-arm64"\s*=\s*).*$', r'\1"' + os.environ["LINUX_ARM64"] + '"', src)
-          src = re.sub(r'(?m)^("macos-x64"\s*=\s*).*$',   r'\1"' + os.environ["MACOS_X64"]   + '"', src)
-          src = re.sub(r'(?m)^("macos-arm64"\s*=\s*).*$', r'\1"' + os.environ["MACOS_ARM64"] + '"', src)
-          p.write_text(src)
-          print(f"Rewrote install/pins.toml for {v}")
-          PY
+          python3 scripts/update-mise-pin.py \
+            --version "$NEW_VERSION" \
+            --released-at "$RELEASED_AT" \
+            --linux-x64 "$LINUX_X64" \
+            --linux-arm64 "$LINUX_ARM64" \
+            --macos-x64 "$MACOS_X64" \
+            --macos-arm64 "$MACOS_ARM64"
+
+      - name: Validate proposed source
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        run: ./scripts/check-ci.sh
 
       - name: Pull upstream changelog excerpt
         id: changelog
@@ -157,6 +152,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Open PR
+        id: cpr
         if: steps.latest.outputs.version != steps.current.outputs.version
         uses: peter-evans/create-pull-request@v6
         with:
@@ -181,3 +177,13 @@ jobs:
             registry changes).
           branch: chore/bump-mise-pin
           delete-branch: true
+
+      - name: Dispatch required checks for generated PR
+        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for workflow in repository-contract.yml public-safety.yml bootstrap-smoke.yml; do
+            gh workflow run "$workflow" --ref chore/bump-mise-pin
+          done
