@@ -30,10 +30,6 @@
 !install.sh
 
 # 4. Tracked top-level directories (directory rule + child rule).
-!bin/
-!bin/**
-!src/
-!src/**
 !scripts/
 !scripts/**
 !home/
@@ -42,8 +38,6 @@
 !agents/**
 !docs/
 !docs/**
-!templates/
-!templates/**
 !install/
 !install/**
 !.github/
@@ -51,10 +45,7 @@
 !legacy/
 !legacy/**
 
-# 5. Holdovers not (yet) used anywhere — kept so future opt-in is a one-line edit.
-!.gitignore_global
-
-# 6. Re-ignore noise that slips into otherwise-allowed paths.
+# 5. Re-ignore noise that slips into otherwise-allowed paths.
 **/.DS_Store
 **/Thumbs.db
 **/Desktop.ini
@@ -68,7 +59,7 @@
 **/dist/
 **/build/
 
-# 7. Local-only artifacts. .example overrides — those are the public templates.
+# 6. Local-only artifacts. .example overrides — those are the public templates.
 *.bak
 *.bak.*
 *.local

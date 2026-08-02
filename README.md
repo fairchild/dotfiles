@@ -8,13 +8,20 @@ The canonical checkout lives at `~/.config/dotfiles/`. A symlink at `~/code/dotf
 
 ## Install
 
+> [!WARNING]
+> This command installs Michael's opinionated shell, Git, agent, and package
+> configuration. It is intended for his machines and for reviewed forks, not
+> as a generic dotfiles installer. Review `home/Brewfile`, `.mise.toml`, and the
+> install scripts before running it on another machine.
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/fairchild/dotfiles/master/install.sh | sh
 ```
 
 The installer detects the operating system and architecture, downloads the mise version pinned in [`install/pins.toml`](install/pins.toml), verifies its SHA-256 checksum, clones this repository, and runs `mise run bootstrap`.
 
-It currently supports macOS and Linux on x86-64 and arm64. The personal package lists are opinionated; forking them is expected.
+It currently supports macOS and Linux on x86-64 and arm64. Forking and adapting
+the personal package lists is expected.
 
 ## Shipped commands
 
@@ -38,19 +45,29 @@ mise run check:ci          # reproduce deterministic pull-request checks
 
 The broader `dotfiles`/`dotty` CLI described in earlier plans has not shipped. A smaller future orchestration surface is tracked in [#2](https://github.com/fairchild/dotfiles/issues/2); it is not required for the current release.
 
-## Source and runtime
+## Architecture
 
-Tracked files are public source. A real private `~/.gitconfig` loader includes the public Git base and `~/.gitconfig.local`, while the linked public zsh base includes `~/.zshrc.local`. Shared first-party skills are tracked under `agents/shared/first-party-skills/`; third-party skills are represented by an immutable lock plus local patches, then materialized during installation.
+Git source is reviewed, mise tasks materialize runtime, and `doctor` checks the
+result without repairing it:
 
-The ownership and migration rules are documented in [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md). Generated shared-agent state lives in a real `~/.agents/` directory outside the public checkout; first-party source remains linked and third-party material is restored from the immutable lock.
+| Layer | Public source | Runtime | Authority |
+|---|---|---|---|
+| Shell and Git base | `home/` | selected files under `$HOME` | Git for the base; `*.local` files for private overrides |
+| First-party agent assets | `agents/shared/` | links under `~/.agents/` | Git |
+| Third-party skills | lock and patches under `agents/shared/` | managed directories under `~/.agents/skills/` | immutable provenance plus installer |
+| Machine-local state | examples only | identity, secrets, logs, caches, generated state | local machine or owning application |
 
-Publication checks and the narrowly scoped override process are documented in [`docs/public-safety.md`](docs/public-safety.md).
+Generated runtime stays outside the public checkout. Unknown collisions are
+backed up before replacement, and mutable tools never write through links into
+tracked source.
 
-Whitelist omission checks and the intentional opt-in procedure are documented in [`docs/repository-completeness.md`](docs/repository-completeness.md).
-
-Sync modes and recovery behavior are documented in [`docs/sync.md`](docs/sync.md).
-
-Pull-request checks and their local reproduction commands are documented in [`docs/ci.md`](docs/ci.md).
+| Question | Reference |
+|---|---|
+| What owns a path? | [`docs/source-runtime-contract.md`](docs/source-runtime-contract.md) |
+| What may be published? | [`docs/public-safety.md`](docs/public-safety.md) |
+| Why is a file omitted? | [`docs/repository-completeness.md`](docs/repository-completeness.md) |
+| How does update and recovery work? | [`docs/sync.md`](docs/sync.md) |
+| How are PR checks reproduced? | [`docs/ci.md`](docs/ci.md) |
 
 ## Participants
 
@@ -61,7 +78,8 @@ Pull-request checks and their local reproduction commands are documented in [`do
 | [dotcursor](https://github.com/fairchild/dotcursor) | Cursor configuration | `~/.cursor` |
 | dotfiles | Shell, Git, Homebrew, and shared agent sources | selected paths under `$HOME` |
 
-Participant declarations and cross-repository health aggregation are future work. GitHub Issues records the executable plan; [`ROADMAP.md`](ROADMAP.md) explains the order.
+Cross-repository health aggregation remains future work. GitHub Issues records
+the executable backlog; [`ROADMAP.md`](ROADMAP.md) explains the current order.
 
 ## Layout
 
