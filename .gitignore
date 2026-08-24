@@ -75,3 +75,6 @@
 *.local.*
 !*.local.example
 .envrc.local
+
+# 3. Private skills: opted back out after the agents/** allow (last match wins).
+agents/shared/first-party-skills/personal-writing-style/
