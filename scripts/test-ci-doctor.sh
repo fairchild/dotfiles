@@ -14,6 +14,7 @@ mkdir -p "$fixture_home" "$fixture_source"
 # contributors reproduce CI before committing while keeping doctor's real
 # source-cleanliness check intact.
 while IFS= read -r -d '' path; do
+	[[ -e "$ROOT/$path" || -L "$ROOT/$path" ]] || continue
 	mkdir -p "$fixture_source/$(dirname "$path")"
 	cp -pR "$ROOT/$path" "$fixture_source/$path"
 done < <(git -C "$ROOT" ls-files --cached --others --exclude-standard -z)

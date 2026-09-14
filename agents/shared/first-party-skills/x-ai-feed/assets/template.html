@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIGNAL — AI Dispatch</title>
+<style>
+  :root {
+    --ink: #ece6d6;
+    --ink-dim: #a89f8a;
+    --ink-faint: #6b6455;
+    --paper: #17140f;
+    --paper-raised: #1f1b14;
+    --paper-card: #221e16;
+    --hairline: rgba(236, 230, 214, 0.12);
+    --stamp: #c9702e;
+    --stamp-dim: #8a5326;
+    --wire: #7a8f6e;
+    --redact: #2a2620;
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  body {
+    font-family: var(--serif);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(201, 112, 46, 0.06), transparent 55%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  }
+
+  a { color: inherit; }
+
+  ::selection { background: var(--stamp-dim); color: var(--ink); }
+
+  /* ---- Masthead ---- */
+
+  header.masthead {
+    border-bottom: 2px solid var(--stamp);
+    padding: 2rem clamp(1rem, 4vw, 3rem) 1.1rem;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 20;
+  }
+
+  .masthead-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+  }
+
+  .masthead-title {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    letter-spacing: 0.02em;
+    font-weight: 600;
+  }
+
+  .masthead-title .sub {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-top: 0.35rem;
+  }
+
+  .masthead-meta {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .masthead-meta .warn { color: var(--stamp); }
+
+  /* Ticker */
+  .ticker {
+    margin-top: 1rem;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0.45rem 0;
+  }
+  .ticker-track {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    animation: scroll-ticker 60s linear infinite;
+  }
+  .ticker-track span { margin-right: 3rem; }
+  .ticker-track span::before { content: "◆ "; color: var(--stamp-dim); }
+  @keyframes scroll-ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Controls */
+  .controls {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    background: transparent;
+    border: 1px solid var(--hairline);
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .tab:hover { border-color: var(--stamp-dim); color: var(--ink); }
+  .tab.active {
+    color: var(--paper);
+    background: var(--stamp);
+    border-color: var(--stamp);
+  }
+
+  .search-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--hairline);
+    padding: 0.3rem 0.6rem;
+    min-width: 14rem;
+  }
+  .search-wrap::before {
+    content: "FIND";
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    color: var(--stamp-dim);
+    margin-right: 0.5rem;
+  }
+  .search-wrap input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    width: 100%;
+  }
+  .search-wrap input::placeholder { color: var(--ink-faint); }
+
+  /* ---- Feed ---- */
+
+  main {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1rem, 4vw, 3rem) 5rem;
+  }
+
+  .entry {
+    position: relative;
+    padding: 1.3rem 0 1.3rem 1.1rem;
+    border-bottom: 1px solid var(--hairline);
+    border-left: 2px solid var(--redact);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 1rem;
+    animation: reveal 0.4s ease backwards;
+  }
+  .entry:hover { border-left-color: var(--stamp); }
+
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--paper);
+    grid-row: span 2;
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  .author { font-weight: 600; font-size: 1rem; }
+  .handle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+  }
+  .verified { color: var(--stamp); font-size: 0.75rem; }
+
+  .stamp-badge {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--stamp);
+    border: 1px solid var(--stamp-dim);
+    padding: 0.08rem 0.4rem;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .entry-meta {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+    margin-top: 0.15rem;
+  }
+
+  .entry-text {
+    margin-top: 0.6rem;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .entry-footer {
+    margin-top: 0.6rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+  }
+  .entry-footer a {
+    text-decoration: none;
+    color: var(--wire);
+    border-bottom: 1px dotted var(--wire);
+  }
+  .entry-footer a:hover { color: var(--ink); border-color: var(--ink); }
+
+  .empty, .footnote {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .footnote {
+    padding-top: 2.5rem;
+    text-align: left;
+  }
+
+  @media (max-width: 30rem) {
+    .avatar { width: 2.1rem; height: 2.1rem; font-size: 0.85rem; }
+    .masthead-row { flex-direction: column; }
+    .masthead-meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-row">
+    <div class="masthead-title">
+      SIGNAL
+      <span class="sub">AI Dispatch · human-curated sources</span>
+    </div>
+    <div class="masthead-meta">
+      <div id="meta-updated">—</div>
+      <div id="meta-counts">—</div>
+    </div>
+  </div>
+  <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+  <div class="controls">
+    <div class="tabs" id="tabs"></div>
+    <div class="search-wrap">
+      <input id="search" type="text" placeholder="handle, name, or text..." autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<main id="feed"></main>
+
+<script>
+  const FEED = __FEED_DATA_JSON__;
+  const META = __META_JSON__;
+
+  const AVATAR_COLORS = ["#c9702e", "#7a8f6e", "#5f7d95", "#a8547a", "#8a7a3a", "#6b5b95"];
+
+  function colorFor(handle) {
+    let h = 0;
+    for (const ch of handle) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  function fmtAge(iso) {
+    const d = new Date(iso);
+    const diffMs = Date.now() - d.getTime();
+    const hrs = Math.floor(diffMs / 3600000);
+    if (hrs < 1) return "<1h ago";
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  document.getElementById("meta-updated").textContent = `LAST RUN ${META.generated_at}`;
+  document.getElementById("meta-counts").innerHTML =
+    `${META.story_count} STORIES · ${META.source_count} SOURCES · ${META.lookback_hours}H WINDOW` +
+    (META.errors && META.errors.length
+      ? ` <span class="warn">· ${META.errors.length} UNAVAILABLE</span>`
+      : "");
+
+  const ticker = document.getElementById("ticker");
+  const headlines = FEED.slice(0, 12).map((p) => `@${p.handle}: ${p.text.slice(0, 90).replace(/\s+/g, " ")}`);
+  const tickerContent = headlines.length
+    ? headlines.concat(headlines).map((h) => `<span>${escapeHtml(h)}</span>`).join("")
+    : `<span>no stories in the current window</span>`;
+  ticker.innerHTML = tickerContent;
+
+  const categories = META.categories || [];
+  const tabsEl = document.getElementById("tabs");
+  const active = new Set(categories);
+
+  function renderTabs() {
+    tabsEl.innerHTML = categories
+      .map((c) => `<button class="tab${active.has(c) ? " active" : ""}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`)
+      .join("");
+  }
+  renderTabs();
+  tabsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab");
+    if (!btn) return;
+    const cat = btn.dataset.cat;
+    if (active.has(cat)) active.delete(cat); else active.add(cat);
+    renderTabs();
+    renderFeed();
+  });
+
+  const searchEl = document.getElementById("search");
+  searchEl.addEventListener("input", renderFeed);
+
+  const feedEl = document.getElementById("feed");
+
+  function renderFeed() {
+    const q = searchEl.value.trim().toLowerCase();
+    const rows = FEED.filter((p) => {
+      if (!active.has(p.category)) return false;
+      if (!q) return true;
+      return (
+        p.text.toLowerCase().includes(q) ||
+        p.handle.toLowerCase().includes(q) ||
+        p.author.toLowerCase().includes(q)
+      );
+    });
+
+    if (!rows.length) {
+      feedEl.innerHTML = `<div class="empty">NO STORIES MATCH THIS FILTER</div>`;
+      return;
+    }
+
+    feedEl.innerHTML = rows
+      .map((p, i) => `
+        <article class="entry" style="animation-delay:${Math.min(i, 20) * 25}ms">
+          <div class="avatar" style="background:${colorFor(p.handle)}">${escapeHtml(p.author.charAt(0).toUpperCase())}</div>
+          <div>
+            <div class="entry-head">
+              <span class="author">${escapeHtml(p.author)}</span>
+              <span class="handle">@${escapeHtml(p.handle)}</span>
+              ${p.verified ? '<span class="verified">✓</span>' : ""}
+              <span class="stamp-badge">${escapeHtml(p.category)}</span>
+            </div>
+            <div class="entry-meta">${fmtAge(p.posted)} · ${new Date(p.posted).toISOString().slice(0, 16).replace("T", " ")}</div>
+            <div class="entry-text">${escapeHtml(p.text)}</div>
+            <div class="entry-footer">
+              <span>♥ ${p.likes.toLocaleString()}</span>
+              <span>⟳ ${p.retweets.toLocaleString()}</span>
+              <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener">original ↗</a>
+            </div>
+          </div>
+        </article>
+      `)
+      .join("");
+  }
+
+  renderFeed();
+
+  if (META.errors && META.errors.length) {
+    const note = document.createElement("div");
+    note.className = "footnote";
+    note.textContent = `Unavailable this run (scrape failed or rate-limited): ${META.errors.join(", ")}`;
+    feedEl.after(note);
+  }
+</script>
+</body>
+</html>

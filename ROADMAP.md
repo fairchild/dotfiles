@@ -16,43 +16,41 @@ GitHub Issues is the authoritative backlog. This file explains why the work is o
 - Deterministic local checks come before orchestration or model-backed review.
 - Participant repositories declare themselves; the umbrella does not maintain a central registry.
 
-## Current focus
+## Current state
 
-[Milestone 1 — Next release: public source → private runtime](https://github.com/fairchild/dotfiles/milestone/1) makes the repository truthful, safe, and reproducible before adding a larger product layer.
+The public-source/private-runtime baseline has landed. The public installer is
+truthful and checksum-pinned; sync converges source and generated runtime;
+doctor is read-only; mutable Git writes stay private; and CI exercises safety,
+completeness, runtime migration, and supported bootstrap profiles.
 
-Done means the public install command works on supported clean environments; tracked source cannot silently absorb generated or private state; sync updates source, materializes runtime, and runs doctor; CI checks safety, completeness, and bootstrap behavior; and dotpi plus dotclaude demonstrate the same source/runtime contract.
+The existing shell and mise commands are the product. A larger CLI is justified
+only by repeated cross-repository friction, not by the existence of an older
+plan.
 
-The TypeScript CLI is deliberately not a requirement for this release. The existing shell and mise surfaces are enough to prove the architecture first.
+## Next work
 
-## Next release work order
-
-| Order | Issue | Outcome |
+| Order | Issue | Decision boundary |
 |---|---|---|
-| 1 | [#19](https://github.com/fairchild/dotfiles/issues/19) — restore a truthful public bootstrap entrypoint | Fix the `main`/`master` mismatch and stop presenting planned surfaces as shipped. |
-| 2 | [#11](https://github.com/fairchild/dotfiles/issues/11) — repair mise pin verification | Restore the weekly verified update path before the pin drifts further. |
-| 3 | [#16](https://github.com/fairchild/dotfiles/issues/16) — gate the public tree | Prevent secrets, runtime artifacts, unmanaged vendor trees, and unexpectedly large changes from reaching the public repository. |
-| 4 | [#20](https://github.com/fairchild/dotfiles/issues/20) — define the source/runtime contract | Give installers, doctor checks, and participant repos one ownership model. |
-| 5 | [#13](https://github.com/fairchild/dotfiles/issues/13) — stop mutable Git writes reaching public source | Fix the known direct-write path through `~/.gitconfig`. |
-| 6 | [#21](https://github.com/fairchild/dotfiles/issues/21) — make sync converge | Fast-forward source, materialize runtime, and run doctor as one idempotent operation. |
-| 7 | [#12](https://github.com/fairchild/dotfiles/issues/12) — detect repository completeness gaps | Catch intended public files that whitelist ignore rules silently omit. |
-| 8 | [#4](https://github.com/fairchild/dotfiles/issues/4) — verify clean bootstrap | Exercise real supported platform/profile pairs in an isolated environment. |
-| 9 | [#3](https://github.com/fairchild/dotfiles/issues/3) — require repo-local checks | Run the deterministic safety, completeness, and doctor checks on pull requests. |
-| 10 | [#5](https://github.com/fairchild/dotfiles/issues/5) and [#6](https://github.com/fairchild/dotfiles/issues/6) — prove participant adoption | Apply the settled contract to dotpi and dotclaude without depending on the future CLI. |
+| 1 | [#7](https://github.com/fairchild/dotfiles/issues/7) — adopt the contract in dotcursor | Audit its mutable runtime first; migrate only with explicit ownership and backups. |
+| 2 | [#2](https://github.com/fairchild/dotfiles/issues/2) — minimal cross-repo doctor/status | Start only after participant doctor contracts are stable; specify command and JSON output before choosing an implementation language. |
+| 3 | [#32](https://github.com/fairchild/dotfiles/issues/32) — reusable participant CI | Publish only the orchestration proven common across dotfiles, dotpi, and dotclaude; keep repository policy local. |
 
-## Future priorities
+These are future-quality improvements, not blockers for daily use. Prefer small
+participant and diagnostic slices over building a broad umbrella CLI.
 
-1. **Cross-repo orchestration** — [Milestone 2](https://github.com/fairchild/dotfiles/milestone/2) starts with a minimal deterministic doctor/status aggregator in [#2](https://github.com/fairchild/dotfiles/issues/2), after participant contracts are stable.
-2. **Remaining participant adoption** — [#7](https://github.com/fairchild/dotfiles/issues/7) brings dotcursor into the established model after its mutable runtime has been audited.
-3. **Release packaging** — [#9](https://github.com/fairchild/dotfiles/issues/9) remains an unmilestoned idea until a CLI exists and a binary solves a demonstrated portability problem.
-4. **Advisory persona** — [#8](https://github.com/fairchild/dotfiles/issues/8) remains an unmilestoned idea; model-backed review is not part of the deterministic configuration contract.
+## Parked ideas
 
-## Non-goals for the next release
+- [#9](https://github.com/fairchild/dotfiles/issues/9) — release binaries only
+  after a CLI exists and packaging solves a demonstrated portability problem.
+- [#8](https://github.com/fairchild/dotfiles/issues/8) — keep the advisory persona
+  outside deterministic bootstrap, doctor, hooks, and required CI.
+
+## Non-goals
 
 - Building the broad TypeScript CLI described by the original phase-zero plan.
 - Publishing static binaries.
 - Adding a central participant registry.
 - Invoking model-backed agents from required CI or hooks.
-- Onboarding dotcursor before the source/runtime pattern is proven elsewhere.
 - Rewriting public Git history beyond a small, clearly worthwhile cleanup.
 
 ## Working from the backlog
@@ -60,8 +58,9 @@ The TypeScript CLI is deliberately not a requirement for this release. The exist
 ```sh
 cd ~/.config/dotfiles
 mise run doctor
-gh issue list --repo fairchild/dotfiles --milestone "Next release: public source → private runtime"
+gh issue list --repo fairchild/dotfiles --state open
 gh issue view --repo fairchild/dotfiles <number>
 ```
 
-Read [`docs/policy.md`](docs/policy.md) before implementation. Where the policy still describes planned CLI behavior as current, [#19](https://github.com/fairchild/dotfiles/issues/19) is the correction surface rather than permission to build the plan implicitly.
+Read [`docs/policy.md`](docs/policy.md) before implementation. Treat GitHub
+Issues as the executable backlog and this file as prioritization guidance.
