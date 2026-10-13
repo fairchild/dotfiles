@@ -1,6 +1,6 @@
 # dotfiles
 
-Public source for Michael's shell, Git, Homebrew, and shared agent configuration, plus the conventions used by [dotclaude](https://github.com/fairchild/dotclaude), [dotpi](https://github.com/fairchild/dotpi), and [dotcursor](https://github.com/fairchild/dotcursor).
+Public source for Michael's shell, Git, Homebrew, and shared agent configuration, plus the conventions used by [dotclaude](https://github.com/fairchild/dotclaude) and two private configuration repositories, for Pi and for Cursor.
 
 The repository is deliberately public so useful configuration and agent patterns can be copied, forked, and reused in open-source-only environments. Machine-local identity, secrets, generated runtime, logs, and caches do not belong in the tracked source.
 
@@ -74,8 +74,8 @@ tracked source.
 | Repository | Role | Runtime path |
 |---|---|---|
 | [dotclaude](https://github.com/fairchild/dotclaude) | Claude Code configuration | `~/.claude` |
-| [dotpi](https://github.com/fairchild/dotpi) | Pi agent configuration | `~/.pi/agent` |
-| [dotcursor](https://github.com/fairchild/dotcursor) | Cursor configuration | `~/.cursor` |
+| Pi configuration (private) | Pi agent configuration | `~/.pi/agent` |
+| Cursor configuration (private) | Cursor configuration | `~/.cursor` |
 | dotfiles | Shell, Git, Homebrew, and shared agent sources | selected paths under `$HOME` |
 
 Cross-repository health aggregation remains future work. GitHub Issues records
