@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-#MISE description="Materialize first-party skills and restore pinned third-party skills"
+#MISE description="Link dotclaude-authored skills and restore pinned third-party skills"
 set -euo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.config/dotfiles}"
 SOURCE_ROOT="$DOTFILES_DIR/agents/shared"
-FIRST_PARTY_DIR="$SOURCE_ROOT/first-party-skills"
+# Skills I author live in dotclaude; this repo links them rather than keeping copies.
+DOTCLAUDE_SKILLS="${DOTFILES_DOTCLAUDE_SKILLS:-$HOME/.claude/skills}"
+LEGACY_FIRST_PARTY_DIR="$SOURCE_ROOT/first-party-skills"
 AGENTS_HOME="${DOTFILES_AGENTS_HOME:-${AGENTS_HOME:-$HOME/.agents}}"
 RUNTIME_DIR="$AGENTS_HOME/skills"
 LOCK_FILE="$SOURCE_ROOT/third-party-skills.lock.json"
@@ -21,7 +23,7 @@ for command_name in git jq patch; do
 		|| { echo "FAIL: required command not found: $command_name" >&2; exit 1; }
 done
 
-if [[ ! -d "$FIRST_PARTY_DIR" || ! -f "$LOCK_FILE" ]]; then
+if [[ ! -f "$LOCK_FILE" ]]; then
 	echo "FAIL: shared skill sources or lockfile missing under $SOURCE_ROOT" >&2
 	exit 1
 fi
@@ -43,26 +45,69 @@ backup_destination() {
 	echo "BACKED UP: unmanaged $destination -> $backup"
 }
 
-materialize_first_party() {
-	local source name destination expected
-	while IFS= read -r source; do
-		name="$(basename "$source")"
-		destination="$RUNTIME_DIR/$name"
-		expected="$FIRST_PARTY_DIR/$name"
+lock_install_names() {
+	jq -r '.skills | to_entries[] | (.value.installName // .key)' "$LOCK_FILE"
+}
 
-		if [[ -L "$destination" \
-			&& "$(realpath_py "$destination")" == "$(realpath_py "$expected")" ]]; then
+# Every real skill directory in dotclaude, tracked or local tier. Symlinks there
+# already point into this runtime, and names the lock claims stay third-party.
+dotclaude_skill_dirs() {
+	local dir name
+	[[ -d "$DOTCLAUDE_SKILLS" ]] || return 0
+	for dir in "$DOTCLAUDE_SKILLS"/*/; do
+		dir="${dir%/}"
+		name="${dir##*/}"
+		[[ -L "$dir" || ! -f "$dir/SKILL.md" ]] && continue
+		grep -Fxq "$name" <<< "$LOCK_NAMES" && continue
+		printf '%s\n' "$dir"
+	done
+}
+
+# A link this installer made: into dotclaude, or into the retired in-repo store.
+managed_link() {
+	local target
+	target="$(readlink "$1")"
+	[[ "$target" == "$DOTCLAUDE_SKILLS"/* || "$target" == "$LEGACY_FIRST_PARTY_DIR"/* ]]
+}
+
+materialize_first_party() {
+	local source name destination link stale=0
+	if [[ ! -d "$DOTCLAUDE_SKILLS" ]]; then
+		echo "SKIP: no dotclaude skills at $DOTCLAUDE_SKILLS"
+	fi
+	while IFS= read -r source; do
+		[[ -n "$source" ]] || continue
+		name="${source##*/}"
+		destination="$RUNTIME_DIR/$name"
+		if [[ -L "$destination" && "$(readlink "$destination")" == "$source" ]]; then
 			continue
 		fi
 		if [[ "$MODE" == "--check" || "$MODE" == "--check-first-party" ]]; then
-			echo "FAIL: first-party skill does not link to public source: $name" >&2
+			echo "FAIL: dotclaude skill is not linked into runtime: $name" >&2
 			return 1
 		fi
 		if [[ -e "$destination" || -L "$destination" ]]; then
-			backup_destination "$destination" "$name"
+			if [[ -L "$destination" ]] && managed_link "$destination"; then
+				rm "$destination"
+			else
+				backup_destination "$destination" "$name"
+			fi
 		fi
-		ln -s "$expected" "$destination"
-	done < <(find "$FIRST_PARTY_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
+		ln -s "$source" "$destination"
+	done < <(dotclaude_skill_dirs)
+
+	# Retire links whose source is gone: the old in-repo store, or a removed dotclaude skill.
+	for link in "$RUNTIME_DIR"/*; do
+		[[ -L "$link" && ! -e "$link" ]] && managed_link "$link" || continue
+		if [[ "$MODE" == "--check" || "$MODE" == "--check-first-party" ]]; then
+			echo "FAIL: stale skill link: ${link##*/} -> $(readlink "$link")" >&2
+			stale=1
+		else
+			rm "$link"
+			echo "PRUNED: stale skill link ${link##*/}"
+		fi
+	done
+	return "$stale"
 }
 
 check_third_party() {
@@ -100,11 +145,6 @@ restore_third_party() {
 	trap '[[ -z "${temp_root:-}" ]] || rm -rf "$temp_root"' EXIT
 
 	while IFS=$'\t' read -r name install_name source_url ref skill_path expected_tree patch_file; do
-		if [[ -d "$FIRST_PARTY_DIR/$install_name" ]]; then
-			echo "FAIL: third-party lock collides with first-party skill: $install_name" >&2
-			exit 1
-		fi
-
 		if [[ "$source_url@$ref" != "$current_key" ]]; then
 			current_key="$source_url@$ref"
 			index=$((index + 1))
@@ -142,6 +182,7 @@ restore_third_party() {
 	)
 }
 
+LOCK_NAMES="$(lock_install_names)"
 materialize_first_party
 
 case "$MODE" in
@@ -150,14 +191,14 @@ case "$MODE" in
 		echo "OK: generated skill runtime matches public sources and lock inventory"
 		;;
 	--check-first-party)
-		echo "OK: generated first-party skill runtime matches public sources"
+		echo "OK: generated runtime links every dotclaude skill"
 		;;
 	--first-party-only)
-		echo "OK: first-party skills linked into generated runtime"
+		echo "OK: dotclaude skills linked into generated runtime"
 		;;
 	all)
 		restore_third_party
 		check_third_party
-		echo "OK: first-party and pinned third-party skills materialized outside the checkout"
+		echo "OK: dotclaude skills linked and pinned third-party skills materialized outside the checkout"
 		;;
 esac

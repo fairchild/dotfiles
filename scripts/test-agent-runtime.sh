@@ -11,7 +11,6 @@ setup_source() {
 	SOURCE="$tmp/source-$name"
 	mkdir -p \
 		"$SOURCE/scripts" \
-		"$SOURCE/agents/shared/first-party-skills/example" \
 		"$SOURCE/agents/shared/prompts" \
 		"$SOURCE/agents/shared/scripts" \
 		"$SOURCE/agents/shared/third-party-patches"
@@ -19,11 +18,22 @@ setup_source() {
 	cp "$ROOT/scripts/restore-shared-skills.sh" "$SOURCE/scripts/"
 	cp "$ROOT/scripts/doctor.sh" "$SOURCE/scripts/"
 	chmod +x "$SOURCE/scripts/install-agents.sh" "$SOURCE/scripts/restore-shared-skills.sh" "$SOURCE/scripts/doctor.sh"
-	printf '%s\n' '---' 'name: example' 'description: fixture' '---' > "$SOURCE/agents/shared/first-party-skills/example/SKILL.md"
 	printf '# prompt\n' > "$SOURCE/agents/shared/prompts/example.md"
 	printf '#!/bin/sh\nexit 0\n' > "$SOURCE/agents/shared/scripts/check-shared-skills.sh"
 	chmod +x "$SOURCE/agents/shared/scripts/check-shared-skills.sh"
 	printf '{"version":1,"skills":{}}\n' > "$SOURCE/agents/shared/third-party-skills.lock.json"
+}
+
+# Skills are authored in dotclaude; each fixture HOME gets its own ~/.claude/skills.
+seed_dotclaude() {
+	mkdir -p "$1/.claude/skills/example"
+	printf '%s\n' '---' 'name: example' 'description: fixture' '---' > "$1/.claude/skills/example/SKILL.md"
+}
+
+must() {
+	local message="$1"
+	shift
+	"$@" || { echo "FAIL: $message" >&2; exit 1; }
 }
 
 run_first_party_install() {
@@ -39,6 +49,7 @@ setup_source legacy
 legacy_source="$SOURCE"
 legacy_home="$tmp/home-legacy"
 mkdir -p "$legacy_home" "$legacy_source/agents/shared/skills/legacy"
+seed_dotclaude "$legacy_home"
 printf 'old runtime\n' > "$legacy_source/agents/shared/skills/legacy/state.txt"
 ln -s "$legacy_source/agents/shared" "$legacy_home/.agents"
 run_first_party_install "$legacy_home" "$legacy_source"
@@ -46,7 +57,7 @@ HOME="$legacy_home" DOTFILES_DIR="$legacy_source" "$legacy_source/scripts/restor
 
 [[ -d "$legacy_home/.agents" && ! -L "$legacy_home/.agents" ]]
 [[ -L "$legacy_home/.agents/skills/example" ]]
-[[ "$(readlink "$legacy_home/.agents/skills/example")" == "$legacy_source/agents/shared/first-party-skills/example" ]]
+must "example links to dotclaude" test "$(readlink "$legacy_home/.agents/skills/example")" = "$legacy_home/.claude/skills/example"
 [[ -L "$legacy_home/.agents/prompts" && -L "$legacy_home/.agents/scripts" ]]
 [[ -L "$legacy_home/.pi/agent/skills" ]]
 [[ ! -e "$legacy_source/agents/shared/skills" ]]
@@ -67,6 +78,7 @@ setup_source collision
 collision_source="$SOURCE"
 collision_home="$tmp/home-collision"
 mkdir -p "$collision_home/.agents/skills/example" "$collision_home/.agents/prompts"
+seed_dotclaude "$collision_home"
 printf 'private skill state\n' > "$collision_home/.agents/skills/example/local.txt"
 printf 'private prompts\n' > "$collision_home/.agents/prompts/local.txt"
 run_first_party_install "$collision_home" "$collision_source"
@@ -76,6 +88,38 @@ run_first_party_install "$collision_home" "$collision_source"
 find "$collision_home/.local/share/dotfiles/migration-backups" -name local.txt -exec grep -l 'private skill state' {} \; | grep -q .
 find "$collision_home/.local/share/dotfiles/migration-backups" -name local.txt -exec grep -l 'private prompts' {} \; | grep -q .
 printf 'PASS: unmanaged runtime collisions are backed up before linking\n'
+
+# dotclaude links: real skills only, lock names stay third-party, stale managed links retire.
+setup_source dotclaude
+dc_source="$SOURCE"
+dc_home="$tmp/home-dotclaude"
+dc_skills="$dc_home/.claude/skills"
+seed_dotclaude "$dc_home"
+mkdir -p "$dc_skills/claimed" "$dc_skills/no-skill-md" "$tmp/elsewhere/linked-in" "$dc_home/.agents/skills"
+printf 'x\n' > "$dc_skills/claimed/SKILL.md"
+ln -s "$tmp/elsewhere/linked-in" "$dc_skills/linked-in"
+printf '{"version":1,"skills":{"claimed":{}}}\n' > "$dc_source/agents/shared/third-party-skills.lock.json"
+ln -s "$dc_source/agents/shared/first-party-skills/old" "$dc_home/.agents/skills/old"
+ln -s "$dc_skills/gone" "$dc_home/.agents/skills/gone"
+ln -s "$tmp/not-ours" "$dc_home/.agents/skills/foreign"
+dc_check() { HOME="$dc_home" DOTFILES_DIR="$dc_source" "$dc_source/scripts/restore-shared-skills.sh" --check-first-party >/dev/null 2>&1; }
+must "check flags unlinked and stale entries before install" eval '! dc_check'
+run_first_party_install "$dc_home" "$dc_source"
+must "dotclaude skill linked" test "$(readlink "$dc_home/.agents/skills/example")" = "$dc_skills/example"
+must "symlinked dotclaude entry not relinked" test ! -e "$dc_home/.agents/skills/linked-in" -a ! -L "$dc_home/.agents/skills/linked-in"
+must "directory without SKILL.md not linked" test ! -L "$dc_home/.agents/skills/no-skill-md"
+must "lock-claimed name left to third-party restore" test ! -L "$dc_home/.agents/skills/claimed"
+must "legacy in-repo link pruned" test ! -L "$dc_home/.agents/skills/old"
+must "removed dotclaude skill link pruned" test ! -L "$dc_home/.agents/skills/gone"
+must "foreign dangling link untouched" test -L "$dc_home/.agents/skills/foreign"
+must "check passes after install" dc_check
+printf 'PASS: dotclaude skills link in; lock names and foreign links are left alone; stale links retire\n'
+
+no_dc_home="$tmp/home-no-dotclaude"
+mkdir -p "$no_dc_home"
+must "install without ~/.claude succeeds" run_first_party_install "$no_dc_home" "$dc_source"
+must "check without ~/.claude passes" env HOME="$no_dc_home" DOTFILES_DIR="$dc_source" "$dc_source/scripts/restore-shared-skills.sh" --check-first-party
+printf 'PASS: a machine without dotclaude skips linking\n'
 
 # A pinned local upstream exercises third-party restore and managed markers.
 setup_source third-party

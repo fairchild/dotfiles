@@ -7,7 +7,7 @@
 1. Require the configured branch and a clean tracked working tree.
 2. Fetch and inspect the remote-tracking branch.
 3. Refuse local-ahead or diverged history; fast-forward only when behind.
-4. Run the non-destructive agent installer, which links first-party source and restores pinned third-party runtime.
+4. Run the non-destructive agent installer, which links dotclaude skills and restores pinned third-party runtime.
 5. Run doctor and return its exact exit status.
 
 Private overlays and unknown runtime are not reset. The installer preserves unclassified collisions in timestamped backups as defined by [`source-runtime-contract.md`](source-runtime-contract.md).

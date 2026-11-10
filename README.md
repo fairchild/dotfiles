@@ -53,7 +53,8 @@ result without repairing it:
 | Layer | Public source | Runtime | Authority |
 |---|---|---|---|
 | Shell and Git base | `home/` | selected files under `$HOME` | Git for the base; `*.local` files for private overrides |
-| First-party agent assets | `agents/shared/` | links under `~/.agents/` | Git |
+| Skills I author | [dotclaude](https://github.com/fairchild/dotclaude) `skills/`, checked out at `~/.claude` | links under `~/.agents/skills/` | dotclaude Git |
+| Shared agent assets | `agents/shared/prompts` and `scripts` | links under `~/.agents/` | Git |
 | Third-party skills | lock and patches under `agents/shared/` | managed directories under `~/.agents/skills/` | immutable provenance plus installer |
 | Machine-local state | examples only | identity, secrets, logs, caches, generated state | local machine or owning application |
 
@@ -85,7 +86,7 @@ the executable backlog; [`ROADMAP.md`](ROADMAP.md) explains the current order.
 
 ```text
 home/                 public base configuration and package lists
-agents/shared/        first-party sources, third-party lock, patches, prompts
+agents/shared/        third-party skill lock, patches, prompts, helper scripts
 scripts/              deterministic install, restore, doctor, and check scripts
 install.sh            POSIX bootstrap entrypoint
 install/pins.toml     pinned mise version, signing key, and platform checksums
