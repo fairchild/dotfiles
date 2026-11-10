@@ -31,6 +31,14 @@ else
     warn "$HOME/.zshrc is not a symlink to the repo (run \`mise run install:zsh\`)"
 fi
 
+# Installers that append to ~/.zshrc write through the symlink into public source.
+if git -C "$DOTFILES_DIR" diff --quiet -- home/.zshrc \
+    && git -C "$DOTFILES_DIR" diff --cached --quiet -- home/.zshrc; then
+    ok "public zsh composer has no local write-through changes"
+else
+    warn "home/.zshrc changed locally (installer append?); fold it into home/zsh/ or ~/.zshrc.local"
+fi
+
 # --- private ~/.gitconfig loader ---
 expected_gitconfig="$DOTFILES_DIR/home/.gitconfig"
 if [[ -f "$HOME/.gitconfig" && ! -L "$HOME/.gitconfig" ]]; then
@@ -187,6 +195,29 @@ if [[ "$MODE" != "--core" ]]; then
 			warn "$cmd not on PATH (\`mise run install:brew\`?)"
 		fi
 	done
+fi
+
+# --- a fresh login shell starts quietly with a unique PATH ---
+if [[ "$MODE" != "--core" ]] && command -v zsh &>/dev/null; then
+	startup_err="$(mktemp)"
+	startup_path="$(env -i HOME="$HOME" USER="${USER:-}" LOGNAME="${USER:-}" TERM=xterm-256color \
+		LANG="${LANG:-en_US.UTF-8}" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
+		zsh -lic 'print -r -- "DOCTOR_PATH=$PATH"' </dev/null 2>"$startup_err" \
+		| sed -n 's/^DOCTOR_PATH=//p' | tail -1)"
+	if [[ -s "$startup_err" ]]; then
+		warn "fresh login shell wrote to stderr: $(head -1 "$startup_err")"
+	else
+		ok "fresh login shell starts without errors"
+	fi
+	rm -f "$startup_err"
+	duplicate_paths="$(tr ':' '\n' <<< "$startup_path" | sed '/^$/d' | sort | uniq -d | paste -sd ' ' -)"
+	if [[ -z "$startup_path" ]]; then
+		warn "fresh login shell did not report a PATH"
+	elif [[ -n "$duplicate_paths" ]]; then
+		warn "fresh login shell PATH repeats: $duplicate_paths"
+	else
+		ok "fresh login shell PATH has no duplicates"
+	fi
 fi
 
 case "$worst" in
