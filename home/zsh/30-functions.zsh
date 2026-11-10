@@ -56,11 +56,9 @@ title() {
 # Live terminal title: "<dirname> — <command>" while running, then "<dirname>".
 preexec() {
     local cmd="$1"
-    if (( ${#cmd} > 30 )); then
-        cmd="${cmd:0:27}..."
-    fi
-    print -Pn "\033]0;${PWD##*/} — $cmd\007"
+    (( ${#cmd} > 30 )) && cmd="${cmd:0:27}..."
+    printf '\033]0;%s — %s\007' "${PWD##*/}" "$cmd"
 }
 precmd() {
-    print -Pn "\033]0;${PWD##*/}\007"
+    printf '\033]0;%s\007' "${PWD##*/}"
 }

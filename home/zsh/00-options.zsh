@@ -6,6 +6,9 @@ autoload -Uz compinit
 # Auto-rehash when PATH changes.
 zstyle ':completion:*' rehash true
 
+# Tool-installed completion dirs must be on fpath before compinit.
+[[ -d ~/.grok/completions/zsh ]] && fpath=(~/.grok/completions/zsh $fpath)
+
 # Cache compinit unless older than 24h.
 if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
     compinit

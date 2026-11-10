@@ -38,6 +38,10 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # --- Antigravity ---
 [[ -d "$HOME/.antigravity/antigravity/bin" ]] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+[[ -d "$HOME/.antigravity-ide/antigravity-ide/bin" ]] && export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
+
+# --- grok ---
+[[ -d "$HOME/.grok/bin" ]] && export PATH="$HOME/.grok/bin:$PATH"
 
 # --- turso ---
 [ -f "$HOME/.turso/env" ] && . "$HOME/.turso/env"
@@ -56,3 +60,9 @@ zstyle ':completion:*:descriptions' format '[%d]'
 # --- Claude Code skills: git worktree CLI (wt) ---
 [ -f "$HOME/.claude/skills/git-worktree/scripts/wt.zsh" ] && \
     source "$HOME/.claude/skills/git-worktree/scripts/wt.zsh"
+
+# --- dedupe PATH ---
+# ~/.zprofile and nested shells repeat some entries. -U dedupes on assignment to
+# the path array (not to PATH strings), so reassign once after the writes above.
+typeset -U path
+path=($path)
