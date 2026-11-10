@@ -67,5 +67,7 @@
 !*.local.example
 .envrc.local
 
-# 3. Private skills: opted back out after the agents/** allow (last match wins).
+# 3. Skills kept out of public source: private ones, and ones owned by dotclaude
+#    (~/.claude/skills). Opted back out after the agents/** allow (last match wins).
 agents/shared/first-party-skills/personal-writing-style/
+agents/shared/first-party-skills/agent-inbox/

@@ -77,6 +77,26 @@ find "$collision_home/.local/share/dotfiles/migration-backups" -name local.txt -
 find "$collision_home/.local/share/dotfiles/migration-backups" -name local.txt -exec grep -l 'private prompts' {} \; | grep -q .
 printf 'PASS: unmanaged runtime collisions are backed up before linking\n'
 
+# A gitignored skill directory belongs to another owner; its runtime link survives.
+setup_source ignored
+ignored_source="$SOURCE"
+ignored_home="$tmp/home-ignored"
+owner_skill="$tmp/dotclaude-skills/owned"
+mkdir -p "$ignored_source/agents/shared/first-party-skills/owned" "$owner_skill" "$ignored_home/.agents/skills"
+printf 'local copy\n' > "$ignored_source/agents/shared/first-party-skills/owned/SKILL.md"
+printf 'agents/shared/first-party-skills/owned/\n' > "$ignored_source/.gitignore"
+git -C "$ignored_source" init -q
+ln -s "$owner_skill" "$ignored_home/.agents/skills/owned"
+run_first_party_install "$ignored_home" "$ignored_source"
+
+# Explicit || exits: bash 3.2 (macOS /bin/bash) does not errexit on a failed [[ ]].
+[[ "$(readlink "$ignored_home/.agents/skills/owned")" == "$owner_skill" ]] \
+	|| { echo "FAIL: install replaced the owner's link for a gitignored skill" >&2; exit 1; }
+[[ "$(readlink "$ignored_home/.agents/skills/example")" == "$ignored_source/agents/shared/first-party-skills/example" ]] \
+	|| { echo "FAIL: published skill was not linked beside the ignored one" >&2; exit 1; }
+HOME="$ignored_home" DOTFILES_DIR="$ignored_source" "$ignored_source/scripts/restore-shared-skills.sh" --check-first-party >/dev/null
+printf 'PASS: gitignored skill directories are left to their owner\n'
+
 # A pinned local upstream exercises third-party restore and managed markers.
 setup_source third-party
 third_source="$SOURCE"

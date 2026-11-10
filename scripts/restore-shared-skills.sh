@@ -43,6 +43,22 @@ backup_destination() {
 	echo "BACKED UP: unmanaged $destination -> $backup"
 }
 
+# Published skills only: a gitignored directory belongs to another owner (a private
+# overlay or dotclaude), so its runtime link is left alone. Untracked, unignored
+# skills count so a new skill can be tried before it is committed.
+first_party_skill_dirs() {
+	local name
+	if git -C "$DOTFILES_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+		git -C "$FIRST_PARTY_DIR" ls-files --cached --others --exclude-standard -- . \
+			| cut -d/ -f1 | sort -u \
+			| while IFS= read -r name; do
+				[[ -d "$FIRST_PARTY_DIR/$name" ]] && printf '%s\n' "$FIRST_PARTY_DIR/$name"
+			done
+	else
+		find "$FIRST_PARTY_DIR" -mindepth 1 -maxdepth 1 -type d | sort
+	fi
+}
+
 materialize_first_party() {
 	local source name destination expected
 	while IFS= read -r source; do
@@ -62,7 +78,7 @@ materialize_first_party() {
 			backup_destination "$destination" "$name"
 		fi
 		ln -s "$expected" "$destination"
-	done < <(find "$FIRST_PARTY_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
+	done < <(first_party_skill_dirs)
 }
 
 check_third_party() {
