@@ -67,5 +67,6 @@
 !*.local.example
 .envrc.local
 
-# 3. Private skills: opted back out after the agents/** allow (last match wins).
-agents/shared/first-party-skills/personal-writing-style/
+# 3. Retired in-repo skill store: skills are authored in dotclaude and linked from
+#    ~/.claude/skills. Leftover copies must not be republished (doctor warns).
+agents/shared/first-party-skills/

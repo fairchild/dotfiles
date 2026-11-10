@@ -37,7 +37,7 @@ description = "Create generated ~/.agents runtime from public sources and pinned
 run = "./scripts/install-agents.sh"
 
 [tasks."install:skills"]
-description = "Restore shared skills from tracked first-party sources and the third-party lock"
+description = "Link dotclaude skills and restore third-party skills from the lock"
 run = "./scripts/restore-shared-skills.sh"
 
 [tasks."install:brew"]

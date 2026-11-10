@@ -86,9 +86,9 @@ else
     warn "$HOME/.agents/skills is not a real generated runtime directory"
 fi
 
-for legacy_runtime in "$DOTFILES_DIR/agents/shared/skills" "$DOTFILES_DIR/agents/shared/runtime-backups"; do
+for legacy_runtime in "$DOTFILES_DIR/agents/shared/skills" "$DOTFILES_DIR/agents/shared/runtime-backups" "$DOTFILES_DIR/agents/shared/first-party-skills"; do
     if [[ -e "$legacy_runtime" || -L "$legacy_runtime" ]]; then
-        warn "legacy generated runtime remains inside checkout: $legacy_runtime"
+        warn "retired runtime path remains inside checkout; move it out: $legacy_runtime"
     fi
 done
 
@@ -109,11 +109,15 @@ else
 fi
 
 # --- materialized shared skill inventory ---
+dotclaude_skills="${DOTFILES_DOTCLAUDE_SKILLS:-$HOME/.claude/skills}"
+if [[ "$MODE" != "--core" && ! -d "$dotclaude_skills" ]]; then
+    warn "no dotclaude skills at $dotclaude_skills; clone fairchild/dotclaude to ~/.claude"
+fi
 restore_check=--check
-restore_description="first-party sources and third-party lock"
+restore_description="dotclaude skills and third-party lock"
 if [[ "${DOTFILES_SKIP_THIRD_PARTY_SKILLS:-0}" == "1" ]]; then
 	restore_check=--check-first-party
-	restore_description="first-party sources (third-party restore intentionally skipped)"
+	restore_description="dotclaude skills (third-party restore intentionally skipped)"
 fi
 if "$DOTFILES_DIR/scripts/restore-shared-skills.sh" "$restore_check" >/dev/null 2>&1; then
     ok "shared skill runtime matches $restore_description"
