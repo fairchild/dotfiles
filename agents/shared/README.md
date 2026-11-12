@@ -10,6 +10,11 @@ Skills I write are authored in [dotclaude](https://github.com/fairchild/dotclaud
 - `third-party-patches/` — narrow attributed changes applied after upstream verification.
 - `prompts/` and `scripts/` — public read-only assets linked into `~/.agents/`.
 
+The Orca skill patches replace retired Codex model examples with a selected-model
+placeholder and route model selection to dotclaude's `codex-cli` skill. Upstream
+commits and tree hashes stay pinned; restoration applies the patches after
+verifying those trees.
+
 The ignored `skills/` and `runtime-backups/` paths exist only so older installations cannot accidentally publish them. `mise run install:agents` moves any such legacy runtime into timestamped private backups before restoring the new topology.
 
 ## Generated runtime

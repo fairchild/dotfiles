@@ -82,6 +82,7 @@
     },
     "orca-cli": {
       "gitTree": "d1175a5a5807a6783a3d896f720645b39f736dbb",
+      "patch": "third-party-patches/orca-cli.patch",
       "ref": "2dad1f04f375237a532b080b6e819a094652b339",
       "skillPath": "skills/orca-cli/SKILL.md",
       "source": "stablyai/orca",
@@ -89,6 +90,7 @@
     },
     "orchestration": {
       "gitTree": "189912ad39f48b0a71f1cf0ee87abfcd55f90716",
+      "patch": "third-party-patches/orchestration.patch",
       "ref": "98d850aebae9f9e87ab20add8fd9cb53f33101a0",
       "skillPath": "skills/orchestration/SKILL.md",
       "source": "stablyai/orca",
