@@ -34,4 +34,9 @@ export DOTFILES_EXPECTED_GIT_REF="$(git -C "$fixture_source" rev-parse HEAD)"
 "$fixture_source/scripts/install-agents.sh"
 "$fixture_source/scripts/doctor.sh" --core
 
+printf '# installer append\n' >> "$fixture_source/home/.zshrc"
+write_through="$("$fixture_source/scripts/doctor.sh" --core 2>&1 || true)"
+grep -q 'home/.zshrc changed locally' <<< "$write_through" \
+	|| { echo "FAIL: doctor missed a write-through to home/.zshrc" >&2; exit 1; }
+
 printf 'OK: isolated CI doctor contract passed\n'
